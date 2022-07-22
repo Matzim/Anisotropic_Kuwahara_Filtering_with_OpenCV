@@ -1,5 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks,c++,vim,visualstudiocode,git,cmake,opencv
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,jupyternotebooks,c++,vim,visualstudiocode,git,cmake,opencv
+.vscode
 
 ### C++ ###
 # Prerequisites
