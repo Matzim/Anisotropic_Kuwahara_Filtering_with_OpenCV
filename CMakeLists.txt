@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0)
-project(oil_paint_filtering VERSION 0.1.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+project(image_abstraction VERSION 0.1.0 LANGUAGES CXX)
 
 # set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_BUILD_TYPE Debug)
@@ -10,7 +10,6 @@ target_compile_options(common_options INTERFACE
     "-Wall"
     "-Wextra"
     "-W"
-    "-std=c++17"
     $<$<CONFIG:Release>: -Werror -O3 -march=native>
     $<$<CONFIG:Debug>: -g3 -Og>
 )
