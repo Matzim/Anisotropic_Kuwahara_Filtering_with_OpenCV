@@ -17,4 +17,4 @@ target_compile_options(common_options INTERFACE
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_subdirectory(src)
+add_subdirectory(cpu_version_src)
