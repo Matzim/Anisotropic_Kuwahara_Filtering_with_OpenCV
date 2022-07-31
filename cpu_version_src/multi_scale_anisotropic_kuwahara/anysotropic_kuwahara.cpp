@@ -1,1 +1,0 @@
-#include "anysotropic_kuwahara.hh"

@@ -1,15 +1,11 @@
 /*! \file ImagePyramid.hh
-    \brief Build low-pass filtered pyramid
+    \brief Low-pass filtered pyramid
 */
 #ifndef __IMAGE_PYRAMID__
 #define __IMAGE_PYRAMID__
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <vector>
-
-
-
-#include <iostream>
 
 class ImagePyramid {
     public:

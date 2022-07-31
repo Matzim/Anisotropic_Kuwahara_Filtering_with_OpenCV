@@ -1,3 +1,6 @@
+/*! \file MultithreadedVideoCapture.hh
+    \brief Camera
+*/
 #ifndef __MULTITHREADED_VIDEO_CAPTURE__
 #define __MULTITHREADED_VIDEO_CAPTURE__
 

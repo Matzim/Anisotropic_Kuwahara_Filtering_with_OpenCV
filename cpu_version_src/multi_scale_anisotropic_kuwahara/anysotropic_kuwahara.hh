@@ -1,6 +1,0 @@
-#ifndef __ANYSOTROPIC_KUWAHARA__
-#define __ANYSOTROPIC_KUWAHARA__
-
-
-
-#endif // __ANYSOTROPIC_KUWAHARA__

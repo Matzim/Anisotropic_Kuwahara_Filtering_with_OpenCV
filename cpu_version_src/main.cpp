@@ -1,3 +1,7 @@
+/*! \file main.cpp
+    \brief Main fonction of the program
+*/
+
 #include "MultithreadedVideoCapture.hh"
 #include "multi_scale_anisotropic_kuwahara/ImagePyramid.hh"
 
@@ -7,8 +11,19 @@
 #include <iostream>
 #include <ctime>
 
-int main(int, char**)
+/**
+    Main function
+*/
+int main(int argc, char** argv)
 {
+    if (argc > 1) {
+        // Process images
+        for (size_t i = 1; argv[i] != nullptr; i++) {
+            std::cout << argv[i] << std::endl;
+        }
+        return 0;
+    }
+
     cv::Mat *frame;
     cv::VideoCapture camera;    // Initialize VideoCapture
 
@@ -29,7 +44,6 @@ int main(int, char**)
     cv::setWindowProperty("Main", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
 
     MultithreadedVideoCapture cam(&camera);
-
     cam.start();
 
     // Get a pointer that store next camera frame
