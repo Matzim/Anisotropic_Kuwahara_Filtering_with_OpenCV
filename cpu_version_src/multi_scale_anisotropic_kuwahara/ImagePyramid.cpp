@@ -29,6 +29,6 @@ void ImagePyramid::clear_pyramid() {
     this->pyramid_levels_.clear();
 };
 
-const std::vector<cv::Mat>& ImagePyramid::get_levels() {
+std::vector<cv::Mat>& ImagePyramid::get_levels() {
     return this->pyramid_levels_;
 };

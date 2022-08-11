@@ -15,7 +15,7 @@ class ImagePyramid {
     void build_pyramid(cv::Mat& image);
     void clear_pyramid();
 
-    const std::vector<cv::Mat>& get_levels();
+    std::vector<cv::Mat>& get_levels();
 
     private:
     const double scale_factor_horizontal = 0.5;

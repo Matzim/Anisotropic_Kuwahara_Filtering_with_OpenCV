@@ -4,6 +4,7 @@
 
 #include "MultithreadedVideoCapture.hh"
 #include "multi_scale_anisotropic_kuwahara/ImagePyramid.hh"
+#include "multi_scale_anisotropic_kuwahara/anisotropic_kuwahara.hh"
 
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
@@ -24,6 +25,7 @@ int main(int argc, char** argv)
         return 0;
     }
 
+    // Use camera when no arguments are provided to the program
     cv::Mat *frame;
     cv::VideoCapture camera;    // Initialize VideoCapture
 
@@ -48,23 +50,21 @@ int main(int argc, char** argv)
 
     // Get a pointer that store next camera frame
     frame = cam.read();
-/*
-    cv::Mat channels[3];
-    cv::split(*frame, channels);
-        cv::Mat blue_channel = channels[0];
-        cv::Mat red_channel = channels[1];
-        cv::Mat green_channel = channels[2];
-*/
     ImagePyramid pyramid = ImagePyramid(3, cv::INTER_LANCZOS4);
     while (true)
     {
         // Copy frame into new image
         cv::Mat image = *frame;
+        
+        // Pyramid construction is performed using Lanczos3 filter
         pyramid.build_pyramid(image);
-        const std::vector<cv::Mat> levels = pyramid.get_levels();
+        std::vector<cv::Mat> levels = pyramid.get_levels();
+
+        // Apply Anisotropic Kuwahara filter
+        cv::Mat *res = kuwaharaAnisotropicFilter(levels[0]);
 
         // Show live and wait for a key with timeout long enough to show images
-        cv::imshow("Main", levels[0]);
+        cv::imshow("Main", *res);
 
         // Close "Main" window when the user press a key !
         if (cv::waitKey(5) >= 0) {
