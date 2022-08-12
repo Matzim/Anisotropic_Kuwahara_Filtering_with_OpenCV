@@ -5,6 +5,7 @@
 #include "MultithreadedVideoCapture.hh"
 #include "multi_scale_anisotropic_kuwahara/ImagePyramid.hh"
 #include "multi_scale_anisotropic_kuwahara/anisotropic_kuwahara.hh"
+#include "multi_scale_anisotropic_kuwahara/ellipses.hh"
 
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
@@ -51,6 +52,23 @@ int main(int argc, char** argv)
     // Get a pointer that store next camera frame
     frame = cam.read();
     ImagePyramid pyramid = ImagePyramid(3, cv::INTER_LANCZOS4);
+
+    // Construct masks to represent ellipse's subregions
+    cv::Mat circle = cv::Mat(23, 23, CV_16S);
+    create_circle(&circle);
+
+    std::vector<cv::Mat*> masks = get_subregions(circle);
+    for (int index = 0; index < 8; index++) {
+        std::cout << masks[index]->rows << " " << masks[index]->cols << std::endl;
+        for (int i = 0; i < masks[index]->rows; i++) {
+            for (int j = 0; j < masks[index]->cols; j++) {
+                std::cout << masks[index]->at<double>(i, j) << " |";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
     while (true)
     {
         // Copy frame into new image
@@ -59,13 +77,16 @@ int main(int argc, char** argv)
         // Pyramid construction is performed using Lanczos3 filter
         pyramid.build_pyramid(image);
         std::vector<cv::Mat> levels = pyramid.get_levels();
+        // cv::imshow("Main", levels[0]);
 
         // Apply Anisotropic Kuwahara filter
-        cv::Mat *res = kuwaharaAnisotropicFilter(levels[0]);
-
+        cv::Mat *res = kuwaharaAnisotropicFilter(levels[0], masks);
+        cv::Mat B;
+        res->convertTo(B, CV_8U);
+        cv::imshow("Main", B);
         // Show live and wait for a key with timeout long enough to show images
-        cv::imshow("Main", *res);
-
+        //cv::imshow("Main", *res);
+        
         // Close "Main" window when the user press a key !
         if (cv::waitKey(5) >= 0) {
             cam.stop();

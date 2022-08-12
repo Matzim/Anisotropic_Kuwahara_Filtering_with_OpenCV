@@ -9,6 +9,6 @@
 #include "local_structure_estimation.hh"
 
 // Compute anisotropy and eigen values/vector then applies filter to rgb image
-cv::Mat *kuwaharaAnisotropicFilter(cv::Mat& rgb_image);
+cv::Mat *kuwaharaAnisotropicFilter(cv::Mat& rgb_image, std::vector<cv::Mat *> masks);
 
 #endif // __ANISOTROPIC_KUWAHARA__
