@@ -18,13 +18,8 @@ std::vector<cv::Mat*> gauss_derivatives(cv::Mat& img);
 
 /*
 ** Calculate the structure tensor of the image
-**
-** We replace the classical Sobel filter with the filter developed by Jähne, B.,
-*Scharr, H.
-** and Körkel, S. 1999 (Principles of filter design. In Computer Vision and
-*Applications)
 */
-std::vector<cv::Mat*> compute_structure_tensor(cv::Mat& channels);
+std::vector<cv::Mat*> compute_structure_tensor(cv::Mat& channels, const cv::Mat &kernel);
 
 // compute the eigen values of the image
 std::vector<cv::Mat*> compute_eigen_values(cv::Mat* E, cv::Mat* F, cv::Mat* G);

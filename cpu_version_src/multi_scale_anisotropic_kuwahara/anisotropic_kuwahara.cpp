@@ -9,6 +9,7 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat &channel,
                                     const cv::Mat &anisotropy,
                                     const cv::Mat &local_orientation) {
   channel.convertTo(channel, CV_64FC1);
+
   std::vector<cv::Mat *> mis = std::vector<cv::Mat *>();
   std::vector<cv::Mat *> sis = std::vector<cv::Mat *>();
 
@@ -84,31 +85,24 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat &channel,
 }
 
 // Compute anisotropy and eigen values/vector then applies filter to rgb image
-cv::Mat *kuwaharaAnisotropicFilter(cv::Mat &rgb_image,
-                                   std::vector<cv::Mat *> masks) {
+void kuwaharaAnisotropicFilter(cv::Mat &rgb_image, std::vector<cv::Mat *> masks, const cv::Mat &kernel) {
   cv::Mat channels[3];
   cv::split(rgb_image, channels);
 
   cv::Mat gray;
   cv::cvtColor(rgb_image, gray, cv::COLOR_BGR2GRAY);
 
-  std::vector<cv::Mat *> structure_tensor = compute_structure_tensor(gray);
-  std::vector<cv::Mat *> eigen_values = compute_eigen_values(
-      structure_tensor[0], structure_tensor[1], structure_tensor[2]);
-
-  // GOOD ! Results differ with the grayscale
+  std::vector<cv::Mat *> structure_tensor = compute_structure_tensor(gray, kernel);
+  std::vector<cv::Mat *> eigen_values = compute_eigen_values(structure_tensor[0], structure_tensor[1], structure_tensor[2]);
 
   // Compute the local orientation in the direction of the minor eigenvector
   cv::Mat f2 = structure_tensor[1]->mul(2.0);
   cv::Mat local_orientation;
-  cv::subtract(*(structure_tensor[0]), *(structure_tensor[2]),
-               local_orientation, cv::noArray(), CV_64FC1);
+  cv::subtract(*(structure_tensor[0]), *(structure_tensor[2]), local_orientation, cv::noArray(), CV_64FC1);
 
-  for (int i = 0; i < local_orientation.rows; i++) {
-    for (int j = 0; j < local_orientation.cols; j++) {
-      local_orientation.at<double>(i, j) = static_cast<double>(
-          std::atan2(local_orientation.at<double>(i, j), f2.at<double>(i, j)));
-    }
+  for (int i = 0; i < local_orientation.rows * local_orientation.cols; i++) {
+      local_orientation.at<double>(i) = static_cast<double>(
+        std::atan2(local_orientation.at<double>(i), f2.at<double>(i)));
   }
   local_orientation *= 0.5;
   local_orientation += (CV_PI / 2.0);
@@ -128,15 +122,11 @@ cv::Mat *kuwaharaAnisotropicFilter(cv::Mat &rgb_image,
                                  local_orientation);
   _kuwaharaAnisotropicFilterGrey(channels[2], masks, anisotropy,
                                  local_orientation);
-
-  cv::Mat *res = new cv::Mat();
-  cv::merge(channels, 3, *res);
+  cv::merge(channels, 3, rgb_image);
 
   delete structure_tensor[0];
   delete structure_tensor[1];
   delete structure_tensor[2];
   delete eigen_values[0];
   delete eigen_values[1];
-
-  return res;
 }

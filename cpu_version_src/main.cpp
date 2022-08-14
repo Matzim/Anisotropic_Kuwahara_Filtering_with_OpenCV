@@ -22,20 +22,36 @@ int main(int argc, char **argv) {
   create_circle(&circle);
   std::vector<cv::Mat *> masks = get_subregions(circle);
 
+  cv::Mat kernel = cv::Mat(13, 13, CV_64FC1);
+  cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
+
+  for (int i = 0; i < 13; i++) {
+    for (int j = 0; j < 13; j++) {
+      kernel.at<double>(i, j) = static_cast<double>(i - 6.0);
+      hgrid.at<double>(i, j) = static_cast<double>(j - 6.0);
+    }
+  }
+
+  cv::pow(kernel, 2, kernel);
+  cv::pow(hgrid, 2, hgrid);
+  cv::add(kernel, hgrid, kernel);
+  kernel /= 8.0;
+  kernel *= -1.0;
+  cv::exp(kernel, kernel);
+  kernel *= (1.0 / (8.0 * CV_PI));
+
   if (argc > 1) {
     // Process images
     for (size_t i = 1; argv[i] != nullptr; i++) {
       cv::Mat input = cv::imread(argv[i], cv::IMREAD_COLOR);
 
       // Apply Anisotropic Kuwahara filter
-      cv::Mat *res = kuwaharaAnisotropicFilter(input, masks);
-      cv::Mat B;
-      res->convertTo(B, CV_8UC3);
+      kuwaharaAnisotropicFilter(input, masks, kernel);
+
+      input.convertTo(input, CV_8UC3);
       // Display resultat !
-      cv::imshow("Main", B);
-      if (cv::waitKey(0) >= 0) {
-          break;
-      }
+      cv::imshow("Main", input);
+      cv::waitKey(0);
     }
     for (int i = 0; i < NB_SUBREGIONS; i++) {
       delete masks.at(i);
@@ -58,8 +74,7 @@ int main(int argc, char **argv) {
   camera.set(cv::CAP_PROP_FRAME_WIDTH, 512);
   camera.set(cv::CAP_PROP_FRAME_HEIGHT, 512);
 
-  std::cout << "You are using " << camera.getBackendName()
-            << "\nPress any key to stop video capture." << std::endl;
+  std::cout << "You are using " << camera.getBackendName() << "\nPress any key to stop video capture." << std::endl;
   cv::namedWindow("Main", cv::WINDOW_AUTOSIZE);
   cv::setWindowProperty("Main", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
 
@@ -79,24 +94,21 @@ int main(int argc, char **argv) {
     std::vector<cv::Mat> levels = pyramid.get_levels();
 
     // Apply Anisotropic Kuwahara filter
-    cv::Mat *res = kuwaharaAnisotropicFilter(levels[0], masks);
+    kuwaharaAnisotropicFilter(levels[0], masks, kernel);
+    levels[0].convertTo(levels[0], CV_8UC3);
 
-    cv::Mat B;
-    res->convertTo(B, CV_8U);
     // Show live and wait for a key with timeout long enough to show images
-    cv::imshow("Main", B);
+    cv::imshow("Main", levels[0]);
 
     // Close "Main" window when the user press a key !
-    if (cv::waitKey(5) >= 0) {
+    if (cv::waitKey(3) >= 0) {
       cam.stop();
       break;
     }
-    delete res;
     pyramid.clear_pyramid();
   }
   for (int i = 0; i < NB_SUBREGIONS; i++) {
     delete masks.at(i);
   }
-
   return 0;
 }

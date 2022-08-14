@@ -3,31 +3,8 @@
 */
 #include "local_structure_estimation.hh"
 
-// returns a 2DMatrix of a gaussian function with sigma = 1
-cv::Mat *gauss_kernel() {
-  // Get Gaussian kernel
-  cv::Mat *mgrid = new cv::Mat(13, 13, CV_64FC1);
-  cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
-
-  for (int i = 0; i < 13; i++) {
-    for (int j = 0; j < 13; j++) {
-      mgrid->at<double>(i, j) = static_cast<double>(i - 6.0);
-      hgrid.at<double>(i, +j) = static_cast<double>(j - 6.0);
-    }
-  }
-
-  cv::pow(*mgrid, 2, *mgrid);
-  cv::pow(hgrid, 2, hgrid);
-  cv::add(*mgrid, hgrid, *mgrid);
-  *mgrid /= 8.0;
-  *mgrid *= -1.0;
-  cv::exp(*mgrid, *mgrid);
-  *mgrid *= (1.0 / (8.0 * CV_PI));
-  return mgrid;
-}
-
 // Return x and y gaussian derivatives so it can be convolved with the image
-std::vector<cv::Mat *> gauss_derivative_kernel(cv::Mat *kernel) {
+std::vector<cv::Mat *> gauss_derivative_kernel(const cv::Mat &kernel) {
   cv::Mat mgrid = cv::Mat(13, 13, CV_64FC1);
   cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
 
@@ -39,14 +16,14 @@ std::vector<cv::Mat *> gauss_derivative_kernel(cv::Mat *kernel) {
   }
   cv::Mat *Dx = new cv::Mat();
   cv::Mat *Dy = new cv::Mat();
-  *Dx = hgrid.mul(*kernel);
-  *Dy = mgrid.mul(*kernel);
+  *Dx = hgrid.mul(kernel);
+  *Dy = mgrid.mul(kernel);
   *Dx *= -1;
   *Dy *= -1;
   return std::vector<cv::Mat *>({Dx, Dy});
 }
 
-std::vector<cv::Mat *> gauss_derivatives(cv::Mat &img, cv::Mat *kernel) {
+std::vector<cv::Mat *> gauss_derivatives(cv::Mat &img, const cv::Mat &kernel) {
   cv::Mat *partial_derivative_x = new cv::Mat();
   cv::Mat *partial_derivative_y = new cv::Mat();
 
@@ -61,9 +38,8 @@ std::vector<cv::Mat *> gauss_derivatives(cv::Mat &img, cv::Mat *kernel) {
   return std::vector<cv::Mat *>({partial_derivative_x, partial_derivative_y});
 }
 
-std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray) {
+std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray, const cv::Mat &kernel) {
   // Calculate approximations of the partial derivative
-  cv::Mat *kernel = gauss_kernel();
   std::vector<cv::Mat *> deriv = gauss_derivatives(gray, kernel);
 
   cv::Mat tmpE = cv::Mat(gray.rows, gray.cols, CV_64FC1);
@@ -78,13 +54,12 @@ std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray) {
   cv::Mat *F = new cv::Mat(gray.rows, gray.cols, CV_64FC1);
   cv::Mat *G = new cv::Mat(gray.rows, gray.cols, CV_64FC1);
 
-  cv::flip(*kernel, *kernel, -1);
+  cv::flip(kernel, kernel, -1);
 
-  cv::filter2D(tmpE, *E, CV_64FC1, *kernel);
-  cv::filter2D(tmpF, *F, CV_64FC1, *kernel);
-  cv::filter2D(tmpG, *G, CV_64FC1, *kernel);
+  cv::filter2D(tmpE, *E, CV_64FC1, kernel);
+  cv::filter2D(tmpF, *F, CV_64FC1, kernel);
+  cv::filter2D(tmpG, *G, CV_64FC1, kernel);
 
-  delete kernel;
   delete deriv[0];
   delete deriv[1];
   return std::vector<cv::Mat *>({E, F, G});

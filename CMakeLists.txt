@@ -14,6 +14,15 @@ target_compile_options(common_options INTERFACE
     $<$<CONFIG:Debug>: -g3 -Og>
 )
 
+file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.hh)
+add_custom_target(
+        clangformat
+        COMMAND /usr/bin/clang-format
+        -style=Google
+        -i
+        ${ALL_SOURCE_FILES}
+)
+
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
