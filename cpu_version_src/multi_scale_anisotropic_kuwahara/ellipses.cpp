@@ -65,7 +65,7 @@ std::vector<cv::Mat*> get_subregions(cv::Mat &circle) {
     int middle = circle.cols / 2;
 
     for (int i = 0; i < NB_SUBREGIONS; i++) {
-        cv::Mat* mask = new cv::Mat(circle.rows, circle.cols, CV_64FC1);
+        cv::Mat* mask = new cv::Mat(circle.rows, circle.cols, CV_64FC1, 0.0);
         mask->at<double>(middle, middle) = static_cast<double>(NB_SUBREGIONS);
         masks.emplace_back(mask);
     }
@@ -78,19 +78,20 @@ std::vector<cv::Mat*> get_subregions(cv::Mat &circle) {
             }
         }
     }
-
-    cv::Mat kernel = cv::Mat(7, 7, CV_64FC1);
-    double coeff = 1.0 / (2.0 * CV_PI * pow(STANDARD_DEVIATION, 2));
+    cv::Mat kernel = cv::Mat(7, 7, CV_64FC1, 0.0);
+    double coeff = 1.0 / (2.0 * CV_PI);
     for (int i = 0; i < 7; i++) {
         for (int j = 0; j < 7; j++) {
             kernel.at<double>(i, j) = coeff * static_cast<double>(
-                exp(((pow(i - 3, 2) + pow(j - 3, 2)) / (2.0 * pow(STANDARD_DEVIATION, 2))) * -1.0)
+                exp(((pow(i - 3, 2) + pow(j - 3, 2)) / 2.0) * -1.0)
             );
         }
     }
+    cv::flip(kernel, kernel, -1);
+
     for (int i = 0; i < NB_SUBREGIONS; i++) {
         cv::filter2D(*(masks[i]), *(masks[i]), CV_64FC1, kernel);
-        apply_gauss(masks[i], coeff);
+        apply_gauss(masks[i], 3.0);
         cut_circle(masks[i], 6);
         masks[i] = extractMatrix(masks[i]);
     }

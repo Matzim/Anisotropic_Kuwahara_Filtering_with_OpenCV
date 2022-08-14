@@ -5,7 +5,6 @@
 #define __ELLIPSES__
 
 // Parameters of the Anisotropic Kuwahara filter
-#define RADIUS 6
 #define NB_SUBREGIONS 8
 #define SHARPENESS_PARAMETER 8
 
