@@ -40,6 +40,8 @@ int main(int argc, char **argv) {
   cv::exp(kernel, kernel);
   kernel *= (1.0 / (8.0 * CV_PI));
 
+  cv::flip(kernel, kernel, -1);
+
   if (argc > 1) {
     // Process images
     for (size_t i = 1; argv[i] != nullptr; i++) {
@@ -50,8 +52,8 @@ int main(int argc, char **argv) {
 
       input.convertTo(input, CV_8UC3);
       // Display resultat !
-      cv::imshow("Main", input);
-      cv::waitKey(0);
+      // cv::imshow("Main", input);
+      // cv::waitKey(0);
     }
     for (int i = 0; i < NB_SUBREGIONS; i++) {
       delete masks.at(i);

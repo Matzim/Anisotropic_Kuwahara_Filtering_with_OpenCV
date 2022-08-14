@@ -147,17 +147,16 @@ void kuwaharaAnisotropicFilter(cv::Mat &rgb_image, std::vector<cv::Mat *> masks,
       structure_tensor[0], structure_tensor[1], structure_tensor[2]);
 
   // Compute the local orientation in the direction of the minor eigenvector
-  cv::Mat f2 = structure_tensor[1]->mul(2.0);
-  cv::Mat local_orientation;
-  cv::subtract(*(structure_tensor[0]), *(structure_tensor[2]),
-               local_orientation, cv::noArray(), CV_64FC1);
+  cv::Mat eigen_vector1;
+  cv::Mat eigen_vector2 = *(structure_tensor[1]) * -1.0;
+  cv::Mat local_orientation = cv::Mat(gray.rows, gray.cols, CV_64FC1);
 
-  for (int i = 0; i < local_orientation.rows * local_orientation.cols; i++) {
+  cv::subtract(*(eigen_values[0]), *(structure_tensor[0]), eigen_vector1,
+               cv::noArray(), CV_64FC1);
+  for (int i = 0; i < gray.rows * gray.cols; i++) {
     local_orientation.at<double>(i) = static_cast<double>(
-        std::atan2(local_orientation.at<double>(i), f2.at<double>(i)));
+        std::atan2(eigen_vector1.at<double>(i), eigen_vector2.at<double>(i)));
   }
-  local_orientation *= 0.5;
-  local_orientation += (CV_PI / 2.0);
   local_orientation *= -1.0;
 
   // Compute the anisotropy of the image

@@ -55,8 +55,6 @@ std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray,
   cv::Mat *F = new cv::Mat(gray.rows, gray.cols, CV_64FC1);
   cv::Mat *G = new cv::Mat(gray.rows, gray.cols, CV_64FC1);
 
-  cv::flip(kernel, kernel, -1);
-
   cv::filter2D(tmpE, *E, CV_64FC1, kernel);
   cv::filter2D(tmpF, *F, CV_64FC1, kernel);
   cv::filter2D(tmpG, *G, CV_64FC1, kernel);
