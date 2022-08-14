@@ -1,7 +1,7 @@
 /*! \file local_structure_estimation.hh
     \brief The local orientation and anisotropy estimation is based
     on the eigenvalues and eigenvectors of the structure tensor
-    
+
     Calculate the structure tensor directly from the RGB values of the input
 */
 #ifndef __LOCAL_STRUCTURE_ESTIMATION__
@@ -19,12 +19,14 @@ std::vector<cv::Mat*> gauss_derivatives(cv::Mat& img);
 /*
 ** Calculate the structure tensor of the image
 **
-** We replace the classical Sobel filter with the filter developed by Jähne, B., Scharr, H.
-** and Körkel, S. 1999 (Principles of filter design. In Computer Vision and Applications)
+** We replace the classical Sobel filter with the filter developed by Jähne, B.,
+*Scharr, H.
+** and Körkel, S. 1999 (Principles of filter design. In Computer Vision and
+*Applications)
 */
-std::vector<cv::Mat*> compute_structure_tensor(cv::Mat channels[3]);
+std::vector<cv::Mat*> compute_structure_tensor(cv::Mat& channels);
 
 // compute the eigen values of the image
 std::vector<cv::Mat*> compute_eigen_values(cv::Mat* E, cv::Mat* F, cv::Mat* G);
 
-#endif // __LOCAL_STRUCTURE_ESTIMATION__
+#endif  // __LOCAL_STRUCTURE_ESTIMATION__

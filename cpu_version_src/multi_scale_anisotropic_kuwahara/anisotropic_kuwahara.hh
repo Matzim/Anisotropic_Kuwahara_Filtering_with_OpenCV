@@ -4,11 +4,15 @@
 #ifndef __ANISOTROPIC_KUWAHARA__
 #define __ANISOTROPIC_KUWAHARA__
 
+#include <algorithm>
 #include <opencv2/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
+#include "ellipses.hh"
 #include "local_structure_estimation.hh"
 
 // Compute anisotropy and eigen values/vector then applies filter to rgb image
-cv::Mat *kuwaharaAnisotropicFilter(cv::Mat& rgb_image, std::vector<cv::Mat *> masks);
+cv::Mat *kuwaharaAnisotropicFilter(cv::Mat &rgb_image,
+                                   std::vector<cv::Mat *> masks);
 
-#endif // __ANISOTROPIC_KUWAHARA__
+#endif  // __ANISOTROPIC_KUWAHARA__

@@ -3,75 +3,114 @@
 */
 #include "local_structure_estimation.hh"
 
-std::vector<cv::Mat*> gauss_derivatives(cv::Mat& img, cv::Mat& Dx, cv::Mat& Dy) {
-    cv::Mat *partial_derivative_x = new cv::Mat();
-    cv::Mat *partial_derivative_y = new cv::Mat();
+// returns a 2DMatrix of a gaussian function with sigma = 1
+cv::Mat *gauss_kernel() {
+  // Get Gaussian kernel
+  cv::Mat *mgrid = new cv::Mat(13, 13, CV_64FC1);
+  cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
 
-    cv::filter2D(img, *partial_derivative_x, CV_32F, Dx);
-    cv::filter2D(img, *partial_derivative_y, CV_32F, Dy);
-    return std::vector<cv::Mat*>({partial_derivative_x, partial_derivative_y});
+  for (int i = 0; i < 13; i++) {
+    for (int j = 0; j < 13; j++) {
+      mgrid->at<double>(i, j) = static_cast<double>(i - 6.0);
+      hgrid.at<double>(i, +j) = static_cast<double>(j - 6.0);
+    }
+  }
+
+  cv::pow(*mgrid, 2, *mgrid);
+  cv::pow(hgrid, 2, hgrid);
+  cv::add(*mgrid, hgrid, *mgrid);
+  *mgrid /= 8.0;
+  *mgrid *= -1.0;
+  cv::exp(*mgrid, *mgrid);
+  *mgrid *= (1.0 / (8.0 * CV_PI));
+  return mgrid;
 }
 
-std::vector<cv::Mat*> compute_structure_tensor(cv::Mat channels[3]) {
-    cv::Mat Dx = (cv::Mat_<double>(3,3) << 0.0915, 0, -0.0915, 0.317, 0, -0.317, 0.0915, 0, -0.0915);
-    cv::Mat Dy;
-    cv::transpose(Dx, Dy);
+// Return x and y gaussian derivatives so it can be convolved with the image
+std::vector<cv::Mat *> gauss_derivative_kernel(cv::Mat *kernel) {
+  cv::Mat mgrid = cv::Mat(13, 13, CV_64FC1);
+  cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
 
-    // Calculate approximations of the partial derivative
-    std::vector<cv::Mat*> r_deriv = gauss_derivatives(channels[0], Dx, Dy);
-    std::vector<cv::Mat*> g_deriv = gauss_derivatives(channels[1], Dx, Dy);
-    std::vector<cv::Mat*> b_deriv = gauss_derivatives(channels[2], Dx, Dy);
-
-    cv::Mat *E = new cv::Mat();
-    cv::Mat *F = new cv::Mat();
-    cv::Mat *G = new cv::Mat();
-
-    cv::Mat dest;
-
-    cv::pow(*r_deriv[0], 2, dest);
-    *E = dest;
-    *F = (r_deriv[0])->mul(*r_deriv[1]);
-    cv::pow(*r_deriv[1], 2, dest);
-    *G = dest;
-
-    cv::pow(*g_deriv[0], 2, dest);
-    *E += dest;
-    *F += (g_deriv[0])->mul(*g_deriv[1]);
-    cv::pow(*g_deriv[1], 2, dest);
-    *G += dest;
-
-    cv::pow(*b_deriv[0], 2, dest);
-    *E += dest;
-    *F += (b_deriv[0])->mul(*b_deriv[1]);
-    cv::pow(*b_deriv[1], 2, dest);
-    *G += dest;
-
-    delete r_deriv[0];
-    delete r_deriv[1];
-    delete g_deriv[0];
-    delete g_deriv[1];
-    delete b_deriv[0];
-    delete b_deriv[1];
-    return std::vector<cv::Mat*>({E, F, G});
+  for (int i = 0; i < 13; i++) {
+    for (int j = 0; j < 13; j++) {
+      mgrid.at<double>(i, j) = static_cast<double>(i - 6.0);
+      hgrid.at<double>(i, +j) = static_cast<double>(j - 6.0);
+    }
+  }
+  cv::Mat *Dx = new cv::Mat();
+  cv::Mat *Dy = new cv::Mat();
+  *Dx = hgrid.mul(*kernel);
+  *Dy = mgrid.mul(*kernel);
+  *Dx *= -1;
+  *Dy *= -1;
+  return std::vector<cv::Mat *>({Dx, Dy});
 }
 
-std::vector<cv::Mat*> compute_eigen_values(cv::Mat* E, cv::Mat* F, cv::Mat* G) {
-    cv::Mat EG = *E + *G;
-    cv::Mat sub;
-    cv::Mat sqrt;
+std::vector<cv::Mat *> gauss_derivatives(cv::Mat &img, cv::Mat *kernel) {
+  cv::Mat *partial_derivative_x = new cv::Mat();
+  cv::Mat *partial_derivative_y = new cv::Mat();
 
-    cv::subtract(*E, *G, sub, cv::noArray(), CV_32F);
-    cv::pow(sub, 2, sub);
-    cv::pow(*F, 2, sqrt);
-    sqrt *= 4.0;
-    cv::sqrt(sqrt + sub, sqrt);
+  std::vector<cv::Mat *> vect = gauss_derivative_kernel(kernel);
+  cv::flip(*(vect[0]), *(vect[0]), -1);
+  cv::flip(*(vect[1]), *(vect[1]), -1);
 
-    cv::Mat *l1 = new cv::Mat();
-    cv::Mat *l2 = new cv::Mat();
+  cv::filter2D(img, *partial_derivative_x, CV_64FC1, *(vect[0]));
+  cv::filter2D(img, *partial_derivative_y, CV_64FC1, *(vect[1]));
+  delete vect[0];
+  delete vect[1];
+  return std::vector<cv::Mat *>({partial_derivative_x, partial_derivative_y});
+}
 
-    *l1 = EG + sqrt;
-    *l2 = EG - sqrt;
-    *l1 /= 2.0;
-    *l2 /= 2.0;
-    return std::vector<cv::Mat*>({l1, l2});
+std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray) {
+  // Calculate approximations of the partial derivative
+  cv::Mat *kernel = gauss_kernel();
+  std::vector<cv::Mat *> deriv = gauss_derivatives(gray, kernel);
+
+  cv::Mat tmpE = cv::Mat(gray.rows, gray.cols, CV_64FC1);
+  cv::Mat tmpF = cv::Mat(gray.rows, gray.cols, CV_64FC1);
+  cv::Mat tmpG = cv::Mat(gray.rows, gray.cols, CV_64FC1);
+
+  cv::pow(*deriv[0], 2, tmpE);
+  tmpF = (deriv[0])->mul(*deriv[1]);
+  cv::pow(*deriv[1], 2, tmpG);
+
+  cv::Mat *E = new cv::Mat(gray.rows, gray.cols, CV_64FC1);
+  cv::Mat *F = new cv::Mat(gray.rows, gray.cols, CV_64FC1);
+  cv::Mat *G = new cv::Mat(gray.rows, gray.cols, CV_64FC1);
+
+  cv::flip(*kernel, *kernel, -1);
+
+  cv::filter2D(tmpE, *E, CV_64FC1, *kernel);
+  cv::filter2D(tmpF, *F, CV_64FC1, *kernel);
+  cv::filter2D(tmpG, *G, CV_64FC1, *kernel);
+
+  delete kernel;
+  delete deriv[0];
+  delete deriv[1];
+  return std::vector<cv::Mat *>({E, F, G});
+}
+
+std::vector<cv::Mat *> compute_eigen_values(cv::Mat *E, cv::Mat *F,
+                                            cv::Mat *G) {
+  cv::Mat EG;
+  cv::add(*E, *G, EG, cv::noArray(), CV_64FC1);
+  cv::Mat sub;
+  cv::Mat sqrt = cv::Mat(F->rows, F->cols, CV_64FC1);
+
+  cv::subtract(*E, *G, sub, cv::noArray(), CV_64FC1);
+  cv::pow(sub, 2, sub);
+  cv::pow(*F, 2.0, sqrt);
+  sqrt *= 4.0;
+  cv::add(sqrt, sub, sqrt, cv::noArray(), CV_64FC1);
+  cv::sqrt(sqrt, sqrt);
+
+  cv::Mat *l1 = new cv::Mat(F->rows, F->cols, CV_64FC1, 0.0);
+  cv::Mat *l2 = new cv::Mat(F->rows, F->cols, CV_64FC1, 0.0);
+
+  cv::add(EG, sqrt, *l1, cv::noArray(), CV_64FC1);
+  cv::subtract(EG, sqrt, *l2, cv::noArray(), CV_64FC1);
+  *l1 /= 2.0;
+  *l2 /= 2.0;
+
+  return std::vector<cv::Mat *>({l1, l2});
 }

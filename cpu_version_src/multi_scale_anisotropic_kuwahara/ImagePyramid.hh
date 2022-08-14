@@ -8,21 +8,21 @@
 #include <vector>
 
 class ImagePyramid {
-    public:
-    ImagePyramid();
-    ImagePyramid(const int nb_level, cv::InterpolationFlags flag);
+ public:
+  ImagePyramid();
+  ImagePyramid(const int nb_level, cv::InterpolationFlags flag);
 
-    void build_pyramid(cv::Mat& image);
-    void clear_pyramid();
+  void build_pyramid(cv::Mat& image);
+  void clear_pyramid();
 
-    std::vector<cv::Mat>& get_levels();
+  std::vector<cv::Mat>& get_levels();
 
-    private:
-    const double scale_factor_horizontal = 0.5;
-    const double scale_factor_vertical = 0.5;
-    int nb_level_;
-    cv::InterpolationFlags interpolation_flag_;
-    std::vector<cv::Mat> pyramid_levels_;
+ private:
+  const double scale_factor_horizontal = 0.5;
+  const double scale_factor_vertical = 0.5;
+  int nb_level_;
+  cv::InterpolationFlags interpolation_flag_;
+  std::vector<cv::Mat> pyramid_levels_;
 };
 
-#endif // __IMAGE_PYRAMID__
+#endif  // __IMAGE_PYRAMID__
