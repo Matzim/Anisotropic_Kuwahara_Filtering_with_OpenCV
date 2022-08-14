@@ -19,7 +19,8 @@ std::vector<cv::Mat*> gauss_derivatives(cv::Mat& img);
 /*
 ** Calculate the structure tensor of the image
 */
-std::vector<cv::Mat*> compute_structure_tensor(cv::Mat& channels, const cv::Mat &kernel);
+std::vector<cv::Mat*> compute_structure_tensor(cv::Mat& channels,
+                                               const cv::Mat& kernel);
 
 // compute the eigen values of the image
 std::vector<cv::Mat*> compute_eigen_values(cv::Mat* E, cv::Mat* F, cv::Mat* G);

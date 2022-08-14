@@ -38,7 +38,8 @@ std::vector<cv::Mat *> gauss_derivatives(cv::Mat &img, const cv::Mat &kernel) {
   return std::vector<cv::Mat *>({partial_derivative_x, partial_derivative_y});
 }
 
-std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray, const cv::Mat &kernel) {
+std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray,
+                                                const cv::Mat &kernel) {
   // Calculate approximations of the partial derivative
   std::vector<cv::Mat *> deriv = gauss_derivatives(gray, kernel);
 

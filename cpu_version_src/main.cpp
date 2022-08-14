@@ -74,7 +74,8 @@ int main(int argc, char **argv) {
   camera.set(cv::CAP_PROP_FRAME_WIDTH, 512);
   camera.set(cv::CAP_PROP_FRAME_HEIGHT, 512);
 
-  std::cout << "You are using " << camera.getBackendName() << "\nPress any key to stop video capture." << std::endl;
+  std::cout << "You are using " << camera.getBackendName()
+            << "\nPress any key to stop video capture." << std::endl;
   cv::namedWindow("Main", cv::WINDOW_AUTOSIZE);
   cv::setWindowProperty("Main", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
 
