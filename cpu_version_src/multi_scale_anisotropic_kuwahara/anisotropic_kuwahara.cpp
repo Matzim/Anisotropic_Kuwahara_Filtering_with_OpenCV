@@ -3,6 +3,184 @@
 */
 #include "anisotropic_kuwahara.hh"
 
+// Interpolation of coordinate x and y into the image
+double bilinear_interpolation(const cv::Mat &image, double new_x,
+                              double new_y) {
+  double x1 = floor(new_x);
+  double x2 = ceil(new_x);
+  double y1 = floor(new_y);
+  double y2 = ceil(new_y);
+
+  if (x1 < 0.0) {
+    x1 += 1.0;
+  }
+  if (y1 < 0.0) {
+    y1 += 1.0;
+  }
+  if (x2 >= image.cols) {
+    x2 -= 1.0;
+  }
+  if (y2 >= image.rows) {
+    y2 -= 1.0;
+  }
+  if (x1 == x2) {
+    if (y1 == y2) {
+      return image.at<double>(static_cast<int>(y1), static_cast<int>(x1));
+    }
+    return (new_y - y1) *
+               image.at<double>(static_cast<int>(y1), static_cast<int>(x1)) +
+           (y2 - new_y) *
+               image.at<double>(static_cast<int>(y2), static_cast<int>(x2));
+  }
+  if (y1 == y2) {
+    return (new_x - x1) *
+               image.at<double>(static_cast<int>(y1), static_cast<int>(x1)) +
+           (x2 - new_x) *
+               image.at<double>(static_cast<int>(y2), static_cast<int>(x2));
+  }
+  double dy2 = y2 - new_y;
+  double dy1 = new_y - y1;
+  int iy1 = static_cast<int>(y1);
+  int iy2 = static_cast<int>(y2);
+  int ix1 = static_cast<int>(x1);
+  int ix2 = static_cast<int>(x2);
+  double l1 =
+      dy2 * image.at<double>(iy2, ix1) + dy1 * image.at<double>(iy1, ix1);
+  double l2 =
+      dy2 * image.at<double>(iy2, ix2) + dy1 * image.at<double>(iy1, ix2);
+  return (x2 - new_x) * l2 + (new_x - x1) * l1;
+}
+
+void _bilinear_interpolation_anisotropic(cv::Mat *channels, cv::Mat *pow2,
+                                         double weight, int i, int j,
+                                         double new_x, double new_y,
+                                         cv::Mat *mi0, cv::Mat *si0,
+                                         cv::Mat *mi1, cv::Mat *si1,
+                                         cv::Mat *mi2, cv::Mat *si2) {
+  double x1 = floor(new_x);
+  double x2 = ceil(new_x);
+  double y1 = floor(new_y);
+  double y2 = ceil(new_y);
+
+  if (x1 < 0.0) {
+    x1 += 1.0;
+  }
+  if (y1 < 0.0) {
+    y1 += 1.0;
+  }
+  if (x2 >= channels[0].cols) {
+    x2 -= 1.0;
+  }
+  if (y2 >= channels[0].rows) {
+    y2 -= 1.0;
+  }
+  int index_x1 = static_cast<int>(x1);
+  int index_x2 = static_cast<int>(x2);
+  int index_y1 = static_cast<int>(y1);
+  int index_y2 = static_cast<int>(y2);
+  if (x1 == x2) {
+    if (y1 == y2) {
+      mi0->at<double>(i, j) +=
+          weight * channels[0].at<double>(index_y1, index_x1);
+      si0->at<double>(i, j) += weight * pow2[0].at<double>(index_y1, index_x1);
+      mi1->at<double>(i, j) +=
+          weight * channels[1].at<double>(index_y1, index_x1);
+      si1->at<double>(i, j) += weight * pow2[1].at<double>(index_y1, index_x1);
+      mi2->at<double>(i, j) +=
+          weight * channels[2].at<double>(index_y1, index_x1);
+      si2->at<double>(i, j) += weight * pow2[2].at<double>(index_y1, index_x1);
+      return;
+    }
+    double cy1 = new_y - y1;
+    double cy2 = y2 - new_y;
+
+    mi0->at<double>(i, j) +=
+        weight * (cy1 * channels[0].at<double>(index_y1, index_x1) +
+                  cy2 * channels[0].at<double>(index_y2, index_x2));
+    si0->at<double>(i, j) +=
+        weight * (cy1 * pow2[0].at<double>(index_y1, index_x1) +
+                  cy2 * pow2[0].at<double>(index_y2, index_x2));
+    mi1->at<double>(i, j) +=
+        weight * (cy1 * channels[1].at<double>(index_y1, index_x1) +
+                  cy2 * channels[1].at<double>(index_y2, index_x2));
+    si1->at<double>(i, j) +=
+        weight * (cy1 * pow2[1].at<double>(index_y1, index_x1) +
+                  cy2 * pow2[1].at<double>(index_y2, index_x2));
+    mi2->at<double>(i, j) +=
+        weight * (cy1 * channels[2].at<double>(index_y1, index_x1) +
+                  cy2 * channels[2].at<double>(index_y2, index_x2));
+    si2->at<double>(i, j) +=
+        weight * (cy1 * pow2[2].at<double>(index_y1, index_x1) +
+                  cy2 * pow2[2].at<double>(index_y2, index_x2));
+    return;
+  }
+  double cx1 = new_x - x1;
+  double cx2 = x2 - new_x;
+  if (y1 == y2) {
+    mi0->at<double>(i, j) +=
+        weight * (cx1 * channels[0].at<double>(index_y1, index_x1) +
+                  cx2 * channels[0].at<double>(index_y2, index_x2));
+    si0->at<double>(i, j) +=
+        weight * (cx1 * pow2[0].at<double>(index_y1, index_x1) +
+                  cx2 * pow2[0].at<double>(index_y2, index_x2));
+    mi1->at<double>(i, j) +=
+        weight * (cx1 * channels[1].at<double>(index_y1, index_x1) +
+                  cx2 * channels[1].at<double>(index_y2, index_x2));
+    si1->at<double>(i, j) +=
+        weight * (cx1 * pow2[1].at<double>(index_y1, index_x1) +
+                  cx2 * pow2[1].at<double>(index_y2, index_x2));
+    mi2->at<double>(i, j) +=
+        weight * (cx1 * channels[2].at<double>(index_y1, index_x1) +
+                  cx2 * channels[2].at<double>(index_y2, index_x2));
+    si2->at<double>(i, j) +=
+        weight * (cx1 * pow2[2].at<double>(index_y1, index_x1) +
+                  cx2 * pow2[2].at<double>(index_y2, index_x2));
+    return;
+  }
+
+  double cy2 = y2 - new_y;
+  double cy1 = new_y - y1;
+
+  double tmp_mi0 = cx2 * (cy2 * channels[0].at<double>(index_y2, index_x2) +
+                          cy1 * channels[0].at<double>(index_y1, index_x2)) +
+                   cx1 * (cy2 * channels[0].at<double>(index_y2, index_x1) +
+                          cy1 * channels[0].at<double>(index_y1, index_x1));
+  double tmp_si0 = cx2 * (cy2 * pow2[0].at<double>(index_y2, index_x2) +
+                          cy1 * pow2[0].at<double>(index_y1, index_x2)) +
+                   cx1 * (cy2 * pow2[0].at<double>(index_y2, index_x1) +
+                          cy1 * pow2[0].at<double>(index_y1, index_x1));
+  ;
+
+  double tmp_mi1 = cx2 * (cy2 * channels[1].at<double>(index_y2, index_x2) +
+                          cy1 * channels[1].at<double>(index_y1, index_x2)) +
+                   cx1 * (cy2 * channels[1].at<double>(index_y2, index_x1) +
+                          cy1 * channels[1].at<double>(index_y1, index_x1));
+  ;
+  double tmp_si1 = cx2 * (cy2 * pow2[1].at<double>(index_y2, index_x2) +
+                          cy1 * pow2[1].at<double>(index_y1, index_x2)) +
+                   cx1 * (cy2 * pow2[1].at<double>(index_y2, index_x1) +
+                          cy1 * pow2[1].at<double>(index_y1, index_x1));
+  ;
+
+  double tmp_mi2 = cx2 * (cy2 * channels[2].at<double>(index_y2, index_x2) +
+                          cy1 * channels[2].at<double>(index_y1, index_x2)) +
+                   cx1 * (cy2 * channels[2].at<double>(index_y2, index_x1) +
+                          cy1 * channels[2].at<double>(index_y1, index_x1));
+  ;
+  double tmp_si2 = cx2 * (cy2 * pow2[2].at<double>(index_y2, index_x2) +
+                          cy1 * pow2[2].at<double>(index_y1, index_x2)) +
+                   cx1 * (cy2 * pow2[2].at<double>(index_y2, index_x1) +
+                          cy1 * pow2[2].at<double>(index_y1, index_x1));
+  ;
+
+  mi0->at<double>(i, j) += weight * tmp_mi0;
+  si0->at<double>(i, j) += weight * tmp_si0;
+  mi1->at<double>(i, j) += weight * tmp_mi1;
+  si1->at<double>(i, j) += weight * tmp_si1;
+  mi2->at<double>(i, j) += weight * tmp_mi2;
+  si2->at<double>(i, j) += weight * tmp_si2;
+}
+
 // Applies an anisotropic kuwahara filter on greyscale image,
 void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
                                     std::vector<cv::Mat *> masks,
@@ -15,71 +193,47 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
   std::vector<cv::Mat *> mis = std::vector<cv::Mat *>();
   std::vector<cv::Mat *> sis = std::vector<cv::Mat *>();
 
-  cv::Mat channel0_pow2;
-  cv::Mat channel1_pow2;
-  cv::Mat channel2_pow2;
-  cv::pow(channels[0], 2, channel0_pow2);
-  cv::pow(channels[1], 2, channel1_pow2);
-  cv::pow(channels[2], 2, channel2_pow2);
+  cv::Mat channels_pow2[3];
+  cv::pow(channels[0], 2, channels_pow2[0]);
+  cv::pow(channels[1], 2, channels_pow2[1]);
+  cv::pow(channels[2], 2, channels_pow2[2]);
 
   int rows = channels[0].rows;
   int cols = channels[0].cols;
 
   // Compute mi and si coefficients
   for (int x = 0; x < NB_SUBREGIONS; x++) {
-    cv::Mat *mi0 = new cv::Mat(rows, cols, CV_64FC1);
-    cv::Mat *si0 = new cv::Mat(rows, cols, CV_64FC1);
-    cv::Mat *mi1 = new cv::Mat(rows, cols, CV_64FC1);
-    cv::Mat *si1 = new cv::Mat(rows, cols, CV_64FC1);
-    cv::Mat *mi2 = new cv::Mat(rows, cols, CV_64FC1);
-    cv::Mat *si2 = new cv::Mat(rows, cols, CV_64FC1);
+    cv::Mat *mi0 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
+    cv::Mat *si0 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
+    cv::Mat *mi1 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
+    cv::Mat *si1 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
+    cv::Mat *mi2 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
+    cv::Mat *si2 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
+    cv::Mat *mask = masks.at(x);
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        double sum_mi_channel0 = 0.0;
-        double sum_si_channel0 = 0.0;
-        double sum_mi_channel1 = 0.0;
-        double sum_si_channel1 = 0.0;
-        double sum_mi_channel2 = 0.0;
-        double sum_si_channel2 = 0.0;
-        cv::Mat *mask = masks.at(x);
-        double angle = local_orientation.at<double>(i, j);
+        double cos_angle = cos(local_orientation.at<double>(i, j));
+        double sin_angle = sin(local_orientation.at<double>(i, j));
+        double iso = anisotropy.at<double>(i, j);
         for (int mx = 0; mx < 13; mx++) {
+          double temp_i = static_cast<double>((mx - 6)) * iso;
           for (int mj = 0; mj < 13; mj++) {
             double weight = mask->at<double>(mx, mj);
             if (weight != 0.0) {
-              double iso = 1.0 + anisotropy.at<double>(i, j);
               double temp_j = static_cast<double>((mj - 6)) * (1.0 / iso);
-              double temp_i = static_cast<double>((mx - 6)) * iso;
-              double cos_angle = cos(angle);
-              double sin_angle = sin(angle);
               double new_x = (cos_angle * temp_j - sin_angle * temp_i) +
                              static_cast<double>(j);
               double new_y = (sin_angle * temp_j + cos_angle * temp_i) +
                              static_cast<double>(i);
               if (new_x >= 0.0 && new_x < cols && new_y >= 0.0 &&
                   new_y < rows) {
-                sum_mi_channel0 +=
-                    weight * bilinear_interpolation(channels[0], new_x, new_y);
-                sum_si_channel0 += weight * bilinear_interpolation(
-                                                channel0_pow2, new_x, new_y);
-                sum_mi_channel1 +=
-                    weight * bilinear_interpolation(channels[1], new_x, new_y);
-                sum_si_channel1 += weight * bilinear_interpolation(
-                                                channel1_pow2, new_x, new_y);
-                sum_mi_channel2 +=
-                    weight * bilinear_interpolation(channels[2], new_x, new_y);
-                sum_si_channel2 += weight * bilinear_interpolation(
-                                                channel2_pow2, new_x, new_y);
+                _bilinear_interpolation_anisotropic(
+                    channels, channels_pow2, weight, i, j, new_x, new_y, mi0,
+                    si0, mi1, si1, mi2, si2);
               }
             }
           }
         }
-        mi0->at<double>(i, j) = sum_mi_channel0;
-        si0->at<double>(i, j) = sum_si_channel0;
-        mi1->at<double>(i, j) = sum_mi_channel1;
-        si1->at<double>(i, j) = sum_si_channel1;
-        mi2->at<double>(i, j) = sum_mi_channel2;
-        si2->at<double>(i, j) = sum_si_channel2;
       }
     }
     mis.emplace_back(mi0);
@@ -166,6 +320,7 @@ void kuwaharaAnisotropicFilter(cv::Mat &rgb_image, std::vector<cv::Mat *> masks,
                cv::noArray(), CV_64FC1);
   cv::add(*(eigen_values[0]), *(eigen_values[1]), tmp, cv::noArray(), CV_64FC1);
   anisotropy /= tmp;
+  anisotropy += 1.0;
 
   _kuwaharaAnisotropicFilterGrey(channels, masks, anisotropy,
                                  local_orientation);
