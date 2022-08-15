@@ -186,9 +186,9 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
                                     std::vector<cv::Mat *> masks,
                                     const cv::Mat &anisotropy,
                                     const cv::Mat &local_orientation) {
-  for (int i = 0; i < 3; i++) {
-    channels[i].convertTo(channels[i], CV_64FC1);
-  }
+  channels[0].convertTo(channels[0], CV_64FC1);
+  channels[1].convertTo(channels[1], CV_64FC1);
+  channels[2].convertTo(channels[2], CV_64FC1);
 
   std::vector<cv::Mat *> mis = std::vector<cv::Mat *>();
   std::vector<cv::Mat *> sis = std::vector<cv::Mat *>();
@@ -210,32 +210,34 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
     cv::Mat *mi2 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
     cv::Mat *si2 = new cv::Mat(rows, cols, CV_64FC1, 0.0);
     cv::Mat *mask = masks.at(x);
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        double cos_angle = cos(local_orientation.at<double>(i, j));
-        double sin_angle = sin(local_orientation.at<double>(i, j));
-        double iso = anisotropy.at<double>(i, j);
-        for (int mx = 0; mx < 13; mx++) {
-          double temp_i = static_cast<double>((mx - 6)) * iso;
-          for (int mj = 0; mj < 13; mj++) {
-            double weight = mask->at<double>(mx, mj);
-            if (weight != 0.0) {
-              double temp_j = static_cast<double>((mj - 6)) * (1.0 / iso);
-              double new_x = (cos_angle * temp_j - sin_angle * temp_i) +
-                             static_cast<double>(j);
-              double new_y = (sin_angle * temp_j + cos_angle * temp_i) +
-                             static_cast<double>(i);
-              if (new_x >= 0.0 && new_x < cols && new_y >= 0.0 &&
-                  new_y < rows) {
-                _bilinear_interpolation_anisotropic(
-                    channels, channels_pow2, weight, i, j, new_x, new_y, mi0,
-                    si0, mi1, si1, mi2, si2);
+    cv::parallel_for_(cv::Range(0, rows), [&](const cv::Range &range) {
+      for (int i = range.start; i < range.end; i++) {
+        for (int j = 0; j < cols; j++) {
+          double cos_angle = cos(local_orientation.at<double>(i, j));
+          double sin_angle = sin(local_orientation.at<double>(i, j));
+          double iso = anisotropy.at<double>(i, j);
+          for (int mx = 0; mx < 13; mx++) {
+            double temp_i = static_cast<double>((mx - 6)) * iso;
+            for (int mj = 0; mj < 13; mj++) {
+              double weight = mask->at<double>(mx, mj);
+              if (weight != 0.0) {
+                double temp_j = static_cast<double>((mj - 6)) * (1.0 / iso);
+                double new_x = (cos_angle * temp_j - sin_angle * temp_i) +
+                               static_cast<double>(j);
+                double new_y = (sin_angle * temp_j + cos_angle * temp_i) +
+                               static_cast<double>(i);
+                if (new_x >= 0.0 && new_x < cols && new_y >= 0.0 &&
+                    new_y < rows) {
+                  _bilinear_interpolation_anisotropic(
+                      channels, channels_pow2, weight, i, j, new_x, new_y, mi0,
+                      si0, mi1, si1, mi2, si2);
+                }
               }
             }
           }
         }
       }
-    }
+    });
     mis.emplace_back(mi0);
     mis.emplace_back(mi1);
     mis.emplace_back(mi2);
@@ -244,20 +246,23 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
     sis.emplace_back(si2);
   }
 
-  for (size_t i = 0; i < mis.size(); i++) {
-    cv::Mat tmp;
-    cv::pow(*(mis[i]), 2, tmp);
-    *(sis[i]) -= tmp;
-    for (int x = 0; x < rows * cols; x++) {
-      if (sis[i]->at<double>(x) < 0.0) {
-        sis[i]->at<double>(x) *= -1.0;
+  cv::parallel_for_(cv::Range(0, mis.size()), [&](const cv::Range &range) {
+    for (int i = range.start; i < range.end; i++) {
+      cv::Mat tmp;
+      cv::pow(*(mis[i]), 2, tmp);
+      *(sis[i]) -= tmp;
+      for (int x = 0; x < rows * cols; x++) {
+        if (sis[i]->at<double>(x) < 0.0) {
+          sis[i]->at<double>(x) *= -1.0;
+        }
       }
+      cv::sqrt(*(sis[i]), *(sis[i]));
+      cv::pow(*(sis[i]), SHARPENESS_PARAMETER, *(sis[i]));
+      *(sis[i]) += 1.0;
+      *(sis[i]) = (1.0 / *(sis[i]));
     }
-    cv::sqrt(*(sis[i]), *(sis[i]));
-    cv::pow(*(sis[i]), SHARPENESS_PARAMETER, *(sis[i]));
-    *(sis[i]) += 1.0;
-    *(sis[i]) = (1.0 / *(sis[i]));
-  }
+  });
+
   cv::Mat sum_alpha0 = cv::Mat(rows, cols, CV_64FC1, 0.0);
   cv::Mat sum_alpha1 = cv::Mat(rows, cols, CV_64FC1, 0.0);
   cv::Mat sum_alpha2 = cv::Mat(rows, cols, CV_64FC1, 0.0);
@@ -286,7 +291,7 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
   }
 }
 
-// Compute anisotropy and eigen values/vector then applies filter to rgb image
+// Anisotropic Kuwahara Filter: Single-scale filtering
 void kuwaharaAnisotropicFilter(cv::Mat &rgb_image, std::vector<cv::Mat *> masks,
                                const cv::Mat &kernel) {
   cv::Mat channels[3];
@@ -307,10 +312,14 @@ void kuwaharaAnisotropicFilter(cv::Mat &rgb_image, std::vector<cv::Mat *> masks,
 
   cv::subtract(*(eigen_values[0]), *(structure_tensor[0]), eigen_vector1,
                cv::noArray(), CV_64FC1);
-  for (int i = 0; i < gray.rows * gray.cols; i++) {
-    local_orientation.at<double>(i) = static_cast<double>(
-        std::atan2(eigen_vector1.at<double>(i), eigen_vector2.at<double>(i)));
-  }
+
+  cv::parallel_for_(
+      cv::Range(0, gray.rows * gray.cols), [&](const cv::Range &range) {
+        for (int i = range.start; i < range.end; i++) {
+          local_orientation.at<double>(i) = static_cast<double>(std::atan2(
+              eigen_vector1.at<double>(i), eigen_vector2.at<double>(i)));
+        }
+      });
   local_orientation *= -1.0;
 
   // Compute the anisotropy of the image
