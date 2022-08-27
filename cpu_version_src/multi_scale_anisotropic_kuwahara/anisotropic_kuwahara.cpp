@@ -59,86 +59,15 @@ void _bilinear_interpolation_anisotropic(cv::Mat *channels, cv::Mat *pow2,
   double x2 = ceil(new_x);
   double y1 = floor(new_y);
   double y2 = ceil(new_y);
-
-  if (x1 < 0.0) {
-    x1 += 1.0;
-  }
-  if (y1 < 0.0) {
-    y1 += 1.0;
-  }
-  if (x2 >= channels[0].cols) {
-    x2 -= 1.0;
-  }
-  if (y2 >= channels[0].rows) {
-    y2 -= 1.0;
-  }
   int index_x1 = static_cast<int>(x1);
   int index_x2 = static_cast<int>(x2);
   int index_y1 = static_cast<int>(y1);
   int index_y2 = static_cast<int>(y2);
-  if (x1 == x2) {
-    if (y1 == y2) {
-      mis[index].at<double>(i, j) +=
-          weight * channels[0].at<double>(index_y1, index_x1);
-      sis[index].at<double>(i, j) += weight * pow2[0].at<double>(index_y1, index_x1);
-      mis[index1].at<double>(i, j) +=
-          weight * channels[1].at<double>(index_y1, index_x1);
-      sis[index1].at<double>(i, j) += weight * pow2[1].at<double>(index_y1, index_x1);
-      mis[index2].at<double>(i, j) +=
-          weight * channels[2].at<double>(index_y1, index_x1);
-      sis[index2].at<double>(i, j) += weight * pow2[2].at<double>(index_y1, index_x1);
-      return;
-    }
-    double cy1 = new_y - y1;
-    double cy2 = y2 - new_y;
-
-    mis[index].at<double>(i, j) +=
-        weight * (cy1 * channels[0].at<double>(index_y1, index_x1) +
-                  cy2 * channels[0].at<double>(index_y2, index_x2));
-    sis[index].at<double>(i, j) +=
-        weight * (cy1 * pow2[0].at<double>(index_y1, index_x1) +
-                  cy2 * pow2[0].at<double>(index_y2, index_x2));
-    mis[index1].at<double>(i, j) +=
-        weight * (cy1 * channels[1].at<double>(index_y1, index_x1) +
-                  cy2 * channels[1].at<double>(index_y2, index_x2));
-    sis[index1].at<double>(i, j) +=
-        weight * (cy1 * pow2[1].at<double>(index_y1, index_x1) +
-                  cy2 * pow2[1].at<double>(index_y2, index_x2));
-    mis[index2].at<double>(i, j) +=
-        weight * (cy1 * channels[2].at<double>(index_y1, index_x1) +
-                  cy2 * channels[2].at<double>(index_y2, index_x2));
-    sis[index2].at<double>(i, j) +=
-        weight * (cy1 * pow2[2].at<double>(index_y1, index_x1) +
-                  cy2 * pow2[2].at<double>(index_y2, index_x2));
-    return;
-  }
   double cx1 = new_x - x1;
   double cx2 = x2 - new_x;
-  if (y1 == y2) {
-    mis[index].at<double>(i, j) +=
-        weight * (cx1 * channels[0].at<double>(index_y1, index_x1) +
-                  cx2 * channels[0].at<double>(index_y2, index_x2));
-    sis[index].at<double>(i, j) +=
-        weight * (cx1 * pow2[0].at<double>(index_y1, index_x1) +
-                  cx2 * pow2[0].at<double>(index_y2, index_x2));
-    mis[index1].at<double>(i, j) +=
-        weight * (cx1 * channels[1].at<double>(index_y1, index_x1) +
-                  cx2 * channels[1].at<double>(index_y2, index_x2));
-    sis[index1].at<double>(i, j) +=
-        weight * (cx1 * pow2[1].at<double>(index_y1, index_x1) +
-                  cx2 * pow2[1].at<double>(index_y2, index_x2));
-    mis[index2].at<double>(i, j) +=
-        weight * (cx1 * channels[2].at<double>(index_y1, index_x1) +
-                  cx2 * channels[2].at<double>(index_y2, index_x2));
-    sis[index2].at<double>(i, j) +=
-        weight * (cx1 * pow2[2].at<double>(index_y1, index_x1) +
-                  cx2 * pow2[2].at<double>(index_y2, index_x2));
-    return;
-  }
-
-  double cy2 = y2 - new_y;
   double cy1 = new_y - y1;
-
+  double cy2 = y2 - new_y;
+  
   double tmp_mi0 = cx2 * (cy2 * channels[0].at<double>(index_y2, index_x2) +
                           cy1 * channels[0].at<double>(index_y1, index_x2)) +
                    cx1 * (cy2 * channels[0].at<double>(index_y2, index_x1) +
@@ -228,14 +157,13 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
               double weight = mask->at<double>(mx, mj);
               if (weight != 0.0) {
                 double temp_j = static_cast<double>((mj - 6)) * (1.0 / iso);
-                double new_x = (cos_angle * temp_j - sin_angle * temp_i) +
-                                static_cast<double>(j);
-                double new_y = (sin_angle * temp_j + cos_angle * temp_i) +
-                                static_cast<double>(i);
-                if (new_x >= 0.0 && new_x < cols && new_y >= 0.0 &&
-                    new_y < rows) {
-                  _bilinear_interpolation_anisotropic(
+                double new_x = (cos_angle * temp_j - sin_angle * temp_i) + static_cast<double>(j);
+                if (new_x >= 0.0 && new_x <= (cols - 1)) {
+                  double new_y = (sin_angle * temp_j + cos_angle * temp_i) + static_cast<double>(i);
+                  if (new_y >= 0.0 && new_y <= (rows - 1)) {
+                    _bilinear_interpolation_anisotropic(
                       channels, channels_pow2, weight, i, j, new_x, new_y, mis, sis, index, index1, index2);
+                  }
                 }
               }
             }
