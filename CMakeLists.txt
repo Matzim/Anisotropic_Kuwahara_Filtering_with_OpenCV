@@ -26,4 +26,4 @@ add_custom_target(
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_subdirectory(cpu_version_src)
+add_subdirectory(src)
