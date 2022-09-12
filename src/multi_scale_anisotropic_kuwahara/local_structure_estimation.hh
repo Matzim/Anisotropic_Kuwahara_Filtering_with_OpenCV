@@ -11,18 +11,20 @@
 #include <opencv2/imgproc.hpp>
 #include <vector>
 
-/*
+/**
 ** Calculate approximations of the partial derivative
 */
 std::vector<cv::Mat*> gauss_derivatives(cv::Mat& img);
 
-/*
+/**
 ** Calculate the structure tensor of the image
 */
 std::vector<cv::Mat*> compute_structure_tensor(cv::Mat& channels,
                                                const cv::Mat& kernel);
 
-// compute the eigen values of the image
+/**
+** Compute the eigen values of the image
+*/
 std::vector<cv::Mat*> compute_eigen_values(cv::Mat* E, cv::Mat* F, cv::Mat* G);
 
 #endif  // __LOCAL_STRUCTURE_ESTIMATION__

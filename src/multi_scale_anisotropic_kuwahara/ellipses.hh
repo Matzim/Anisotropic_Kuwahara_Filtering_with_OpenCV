@@ -1,6 +1,5 @@
 /*! \file ellipses.hh
-    \brief Functions used to create ellipses used in the anisotropic Kuwahara
-   filter
+    \brief Functions used to create ellipses used in the anisotropic Kuwahara filter
 */
 #ifndef __ELLIPSES__
 #define __ELLIPSES__

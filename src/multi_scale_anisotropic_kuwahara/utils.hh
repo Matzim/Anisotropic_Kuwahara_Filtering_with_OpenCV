@@ -4,8 +4,6 @@
 #ifndef __UTILS__
 #define __UTILS__
 
-#define STANDARD_DEVIATION 3
-
 #include <opencv2/core.hpp>
 
 // Apply gauss function to all values in matrix

@@ -1,5 +1,6 @@
 /*! \file MultithreadedVideoCapture.hh
-    \brief Camera
+    \brief Video capture that use a detached thread
+    to collect frames and avoid blocking I/O operations
 */
 #ifndef __MULTITHREADED_VIDEO_CAPTURE__
 #define __MULTITHREADED_VIDEO_CAPTURE__
@@ -27,7 +28,7 @@ class MultithreadedVideoCapture {
   cv::VideoCapture* camera_;
   cv::Mat frame_;
   bool stop_;
-  std::mutex mutex;
+  std::mutex mutex_;
 };
 
 #endif  // __MULTITHREADED_VIDEO_CAPTURE__

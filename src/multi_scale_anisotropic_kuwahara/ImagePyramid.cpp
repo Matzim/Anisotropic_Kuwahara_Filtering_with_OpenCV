@@ -1,5 +1,5 @@
 /*! \file ImagePyramid.hh
-    \brief Implemantation of the construction of the low-pass filtered pyramid
+    \brief Implementation of the construction of the low-pass filtered pyramid
 */
 #include "ImagePyramid.hh"
 

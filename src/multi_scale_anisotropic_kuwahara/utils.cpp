@@ -19,8 +19,8 @@ void apply_gauss(cv::Mat* mask, double sigma) {
   }
 }
 
-// Extract sub-matrix of size (13, 13) from matrix mat.
-// Extraction is centered on matrix mat own center
+// Extract sub-matrix of size (13, 13) from matrix
+// Extraction is centered on center of matrix
 cv::Mat* extractMatrix(cv::Mat* mat) {
   cv::Mat* res = new cv::Mat(13, 13, CV_64FC1);
   for (int i = 0; i < 13; i++) {

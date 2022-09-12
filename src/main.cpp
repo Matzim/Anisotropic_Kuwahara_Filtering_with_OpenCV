@@ -13,9 +13,6 @@
 #include "multi_scale_anisotropic_kuwahara/anisotropic_kuwahara.hh"
 #include "multi_scale_anisotropic_kuwahara/ellipses.hh"
 
-/**
-    Main function
-*/
 int main(int argc, char **argv) {
   // Construct masks to represent ellipse's subregions
   cv::Mat circle = cv::Mat(23, 23, CV_16S, 0.0);
@@ -49,7 +46,7 @@ int main(int argc, char **argv) {
       kuwaharaAnisotropicFilter(input, masks, kernel);
 
       input.convertTo(input, CV_8UC3);
-      // Display resultat !
+      // Display resultat
       cv::imshow("Main", input);
       cv::waitKey(0);
     }
@@ -76,13 +73,15 @@ int main(int argc, char **argv) {
 
   std::cout << "You are using " << camera.getBackendName()
             << "\nPress any key to stop video capture." << std::endl;
+
+  // Create Windows to display image
   cv::namedWindow("Main", cv::WINDOW_AUTOSIZE);
   cv::setWindowProperty("Main", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
 
   MultithreadedVideoCapture cam(&camera);
   cam.start();
 
-  // Get a pointer that store next camera frame
+  // Get a pointer that store next frame
   frame = cam.read();
   ImagePyramid pyramid = ImagePyramid(3, cv::INTER_LANCZOS4);
 
@@ -101,7 +100,7 @@ int main(int argc, char **argv) {
     // Show live and wait for a key with timeout long enough to show images
     cv::imshow("Main", levels[0]);
 
-    // Close "Main" window when the user press a key !
+    // Close "Main" window when the user press a key
     if (cv::waitKey(3) >= 0) {
       cam.stop();
       break;

@@ -1,6 +1,6 @@
 #include "ellipses.hh"
 
-// get angle of coordinate x,y compare to coordinate 0,0
+// Get angle of coordinate x,y compare to coordinate 0,0
 double atan_interval(double x, double y) {
   if (x > 0) {
     if (y >= 0) {
