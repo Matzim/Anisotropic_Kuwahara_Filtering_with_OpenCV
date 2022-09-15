@@ -32,8 +32,7 @@ int main(int argc, char **argv) {
   cv::pow(kernel, 2, kernel);
   cv::pow(hgrid, 2, hgrid);
   cv::add(kernel, hgrid, kernel);
-  kernel /= 8.0;
-  kernel *= -1.0;
+  kernel /= -8.0;
   cv::exp(kernel, kernel);
   kernel *= (1.0 / (8.0 * CV_PI));
 
