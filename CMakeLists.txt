@@ -14,6 +14,8 @@ target_compile_options(common_options INTERFACE
     $<$<CONFIG:Debug>: -g3 -Og>
 )
 
+set(OpenGL_GL_PREFERENCE LEGACY)
+
 file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.hh)
 add_custom_target(
         clangformat

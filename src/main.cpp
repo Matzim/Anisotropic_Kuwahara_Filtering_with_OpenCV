@@ -9,9 +9,9 @@
 #include <opencv2/videoio.hpp>
 
 #include "MultithreadedVideoCapture.hh"
-#include "multi_scale_anisotropic_kuwahara/ImagePyramid.hh"
-#include "multi_scale_anisotropic_kuwahara/anisotropic_kuwahara.hh"
-#include "multi_scale_anisotropic_kuwahara/ellipses.hh"
+#include "anisotropic_kuwahara/ImagePyramid.hh"
+#include "anisotropic_kuwahara/anisotropic_kuwahara.hh"
+#include "anisotropic_kuwahara/ellipses.hh"
 
 int main(int argc, char **argv) {
   // Construct masks to represent ellipse's subregions
