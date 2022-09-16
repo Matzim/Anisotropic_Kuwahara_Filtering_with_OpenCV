@@ -5,13 +5,13 @@
 
 // Return x and y gaussian derivatives so it can be convolved with the image
 std::vector<cv::Mat *> gauss_derivative_kernel(const cv::Mat &kernel) {
-  cv::Mat mgrid = cv::Mat(13, 13, CV_64FC1);
-  cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
+  cv::Mat mgrid = cv::Mat(KERNEL_SOBEL_SIZE, KERNEL_SOBEL_SIZE, CV_64FC1);
+  cv::Mat hgrid = cv::Mat(KERNEL_SOBEL_SIZE, KERNEL_SOBEL_SIZE, CV_64FC1);
 
-  for (int i = 0; i < 13; i++) {
-    for (int j = 0; j < 13; j++) {
-      mgrid.at<double>(i, j) = static_cast<double>(i - 6.0);
-      hgrid.at<double>(i, +j) = static_cast<double>(j - 6.0);
+  for (int i = 0; i < KERNEL_SOBEL_SIZE; i++) {
+    for (int j = 0; j < KERNEL_SOBEL_SIZE; j++) {
+      mgrid.at<double>(i, j) = static_cast<double>(i - (KERNEL_SOBEL_SIZE / 2));
+      hgrid.at<double>(i, +j) = static_cast<double>(j - (KERNEL_SOBEL_SIZE / 2));
     }
   }
   cv::Mat *Dx = new cv::Mat();

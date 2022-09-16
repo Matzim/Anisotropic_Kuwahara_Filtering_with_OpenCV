@@ -11,6 +11,9 @@
 #include <opencv2/imgproc.hpp>
 #include <vector>
 
+// Modify size of the Sobel filter used in the structure tensor calculation
+#define KERNEL_SOBEL_SIZE 9
+
 /**
 ** Calculate approximations of the partial derivative
 */

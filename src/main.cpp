@@ -19,13 +19,13 @@ int main(int argc, char **argv) {
   create_circle(&circle);
   std::vector<cv::Mat *> masks = get_subregions(circle);
 
-  cv::Mat kernel = cv::Mat(13, 13, CV_64FC1);
-  cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
+  cv::Mat kernel = cv::Mat(KERNEL_SOBEL_SIZE, KERNEL_SOBEL_SIZE, CV_64FC1);
+  cv::Mat hgrid = cv::Mat(KERNEL_SOBEL_SIZE, KERNEL_SOBEL_SIZE, CV_64FC1);
 
-  for (int i = 0; i < 13; i++) {
-    for (int j = 0; j < 13; j++) {
-      kernel.at<double>(i, j) = static_cast<double>(i - 6.0);
-      hgrid.at<double>(i, j) = static_cast<double>(j - 6.0);
+  for (int i = 0; i < KERNEL_SOBEL_SIZE; i++) {
+    for (int j = 0; j < KERNEL_SOBEL_SIZE; j++) {
+      kernel.at<double>(i, j) = static_cast<double>(i - (KERNEL_SOBEL_SIZE / 2));
+      hgrid.at<double>(i, j) = static_cast<double>(j - (KERNEL_SOBEL_SIZE / 2));
     }
   }
 
@@ -73,14 +73,14 @@ int main(int argc, char **argv) {
   std::cout << "You are using " << camera.getBackendName()
             << "\nPress any key to stop video capture." << std::endl;
 
-  // Create Windows to display image
+  // Create Window to display image
   cv::namedWindow("Main", cv::WINDOW_AUTOSIZE);
   cv::setWindowProperty("Main", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
 
   MultithreadedVideoCapture cam(&camera);
   cam.start();
 
-  // Get a pointer that store next frame
+  // Get a pointer that stores next frame
   frame = cam.read();
   ImagePyramid pyramid = ImagePyramid(3, cv::INTER_LANCZOS4);
 
