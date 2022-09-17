@@ -55,7 +55,7 @@ program *program::make_program(std::string &vertex_shader_src,
   GLint fragment = 0;
   glGetShaderiv(res->shaders_id[1], GL_COMPILE_STATUS, &fragment);
   if (fragment == GL_FALSE) {
-    std::cerr << "There was an error when compiling fragment shaders\n";
+    std::cerr << "There was an error when compiling fragment shaders !" << std::endl;
     return res;
   }
 

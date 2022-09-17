@@ -9,9 +9,9 @@
 #define __PROGRAM__
 
 #include <GL/glew.h>
-
 #include <GL/freeglut.h>
 #include <string>
+#include <vector>
 
 #define TEST_OPENGL_ERROR()                                                    \
   do {                                                                         \
@@ -36,4 +36,4 @@ private:
   GLuint prog_id;
 };
 
-#endif
+#endif // __PROGRAM__

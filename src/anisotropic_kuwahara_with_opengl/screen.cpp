@@ -23,7 +23,7 @@ bool Screen::init_screen(GLuint program_id) {
         glVertexAttribPointer(vertices_location, 3, GL_FLOAT, GL_FALSE, 0, 0);TEST_OPENGL_ERROR();
         glEnableVertexAttribArray(vertices_location);TEST_OPENGL_ERROR();
     } else {
-        std::cerr << "Screen: init_screen: 'position_location' not found !" << std::endl;
+        std::cerr << "Screen: init_screen: 'position' not found !" << std::endl;
         return false;
     }
     if (uvs_location != -1) {

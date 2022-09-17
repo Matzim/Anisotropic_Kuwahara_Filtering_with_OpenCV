@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
   glutInitWindowSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   glutInitWindowPosition(0, 0);
-  glutCreateWindow("Main");
+  glutCreateWindow("Anisotropic Kuwahara");
   glutDisplayFunc(display);
 
   GLenum err = glewInit();
@@ -105,11 +105,10 @@ int main(int argc, char **argv) {
   glDebugMessageCallback(MessageCallback, 0);
 
   // Construct masks to represent ellipse's subregions
+
   cv::Mat circle = cv::Mat(23, 23, CV_16S, 0.0);
   create_circle(&circle);
   std::vector<cv::Mat *> masks = get_subregions(circle);
-  cv::Mat kernel = cv::Mat(13, 13, CV_64FC1);
-  cv::Mat hgrid = cv::Mat(13, 13, CV_64FC1);
 
   std::string fragment_shader_src = load("src/fragment_shader.shd");
   std::string vertex_shader_src = load("src/vertex_shader.shd");
@@ -120,20 +119,6 @@ int main(int argc, char **argv) {
   screen = &init;
   screen->init_screen(prog->getProgID());
 
-  for (int i = 0; i < 13; i++) {
-    for (int j = 0; j < 13; j++) {
-      kernel.at<double>(i, j) = static_cast<double>(i - 6.0);
-      hgrid.at<double>(i, j) = static_cast<double>(j - 6.0);
-    }
-  }
-
-  cv::pow(kernel, 2, kernel);
-  cv::pow(hgrid, 2, hgrid);
-  cv::add(kernel, hgrid, kernel);
-  kernel /= -8.0;
-  cv::exp(kernel, kernel);
-  kernel *= (1.0 / (8.0 * CV_PI));
-
   if (argc > 1) {
     // Process images
     for (size_t i = 1; argv[i] != nullptr; i++) {
@@ -141,8 +126,8 @@ int main(int argc, char **argv) {
 
       // Apply Anisotropic Kuwahara filter
 
-      // Display resultat
-      cv::waitKey(0);
+      // Display result
+
     }
     for (int i = 0; i < NB_SUBREGIONS; i++) {
       delete masks.at(i);
@@ -169,7 +154,7 @@ int main(int argc, char **argv) {
   MultithreadedVideoCapture cam(&camera);
   cam.start();
 
-  // Get a pointer that store next frame
+  // Get a pointer that stores next frame
   frame = cam.read();
 
   glGenTextures(1, &texture);
@@ -177,7 +162,7 @@ int main(int argc, char **argv) {
   screen->init_texture(frame, texture);
 
   glutMainLoop();
-
+  pyramid.clear_pyramid();
   cam.stop();
   for (int i = 0; i < NB_SUBREGIONS; i++) {
     delete masks.at(i);
