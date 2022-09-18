@@ -7,7 +7,7 @@
 #include <opencv2/core.hpp>
 
 // Apply gauss function to all values in matrix
-void apply_gauss(cv::Mat* mask, double coeff);
+void apply_gauss(cv::Mat* mask, double sigma);
 
 cv::Mat* extractMatrix(cv::Mat* mat);
 

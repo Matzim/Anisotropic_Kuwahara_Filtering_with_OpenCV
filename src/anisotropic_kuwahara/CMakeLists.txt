@@ -1,18 +1,12 @@
 add_library(utilities STATIC
-    ImagePyramid.hh
-    ImagePyramid.cpp
-    ellipses.cpp
-    ellipses.hh
-    utils.cpp
     utils.hh
+    utils.cpp
 )
 
 target_compile_features(utilities PUBLIC cxx_std_11)
 target_link_libraries(utilities PRIVATE common_options ${OpenCV_LIBS})
 
 add_library(MultiAnisotropicKuwahara STATIC
-    ImagePyramid.hh
-    ImagePyramid.cpp
     anisotropic_kuwahara.cpp
     anisotropic_kuwahara.hh
     local_structure_estimation.cpp

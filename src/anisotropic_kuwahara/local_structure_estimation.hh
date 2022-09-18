@@ -12,7 +12,7 @@
 #include <vector>
 
 // Modify size of the Sobel filter used in the structure tensor calculation
-#define KERNEL_SOBEL_SIZE 9
+#define KERNEL_SOBEL_SIZE 7
 
 /**
 ** Calculate approximations of the partial derivative

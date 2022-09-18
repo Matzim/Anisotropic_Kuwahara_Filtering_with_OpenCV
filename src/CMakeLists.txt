@@ -18,6 +18,7 @@ if (OpenGL_FOUND AND GLEW_FOUND AND GLUT_FOUND)
     target_link_libraries(main_opengl PRIVATE
         common_options utilities ${OpenCV_LIBS} OpenGL::GL GLEW ${OPENGL_LIBRARIES} GLUT::GLUT opengl_anisotropic_kuwahara
     )
-    configure_file(fragment_shader.shd fragment_shader.shd COPYONLY)
+    configure_file(simple_display.shd simple_display.shd COPYONLY)
     configure_file(vertex_shader.shd vertex_shader.shd COPYONLY)
+    configure_file(anisotropic_kuwahara_shader.shd anisotropic_kuwahara_shader.shd COPYONLY)
 endif()

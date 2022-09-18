@@ -9,7 +9,6 @@
 #include <opencv2/videoio.hpp>
 
 #include "MultithreadedVideoCapture.hh"
-#include "anisotropic_kuwahara/ImagePyramid.hh"
 #include "anisotropic_kuwahara/anisotropic_kuwahara.hh"
 #include "anisotropic_kuwahara/ellipses.hh"
 
@@ -43,10 +42,9 @@ int main(int argc, char **argv) {
 
       // Apply Anisotropic Kuwahara filter
       kuwaharaAnisotropicFilter(input, masks, kernel);
-
       input.convertTo(input, CV_8UC3);
       // Display resultat
-      cv::imshow("Main", input);
+      cv::imshow("Anisotropic Kuwahara", input);
       cv::waitKey(0);
     }
     for (int i = 0; i < NB_SUBREGIONS; i++) {
@@ -74,37 +72,31 @@ int main(int argc, char **argv) {
             << "\nPress any key to stop video capture." << std::endl;
 
   // Create Window to display image
-  cv::namedWindow("Main", cv::WINDOW_AUTOSIZE);
-  cv::setWindowProperty("Main", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
+  cv::namedWindow("Anisotropic Kuwahara", cv::WINDOW_AUTOSIZE);
+  cv::setWindowProperty("Anisotropic Kuwahara", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
 
   MultithreadedVideoCapture cam(&camera);
   cam.start();
 
   // Get a pointer that stores next frame
   frame = cam.read();
-  ImagePyramid pyramid = ImagePyramid(3, cv::INTER_LANCZOS4);
 
   while (true) {
     // Copy frame into new image
     cv::Mat image = *frame;
 
-    // Pyramid construction is performed using Lanczos3 filter
-    pyramid.build_pyramid(image);
-    std::vector<cv::Mat> levels = pyramid.get_levels();
-
     // Apply Anisotropic Kuwahara filter
-    kuwaharaAnisotropicFilter(levels[0], masks, kernel);
-    levels[0].convertTo(levels[0], CV_8UC3);
+    kuwaharaAnisotropicFilter(image, masks, kernel);
+    image.convertTo(image, CV_8UC3);
 
     // Show live and wait for a key with timeout long enough to show images
-    cv::imshow("Main", levels[0]);
+    cv::imshow("Anisotropic Kuwahara", image);
 
     // Close "Main" window when the user press a key
     if (cv::waitKey(3) >= 0) {
       cam.stop();
       break;
     }
-    pyramid.clear_pyramid();
   }
   for (int i = 0; i < NB_SUBREGIONS; i++) {
     delete masks.at(i);

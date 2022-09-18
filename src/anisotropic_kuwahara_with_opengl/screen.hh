@@ -45,23 +45,25 @@ class Screen {
 
     ~Screen() {
         glDeleteTextures(1, &this->texture_id);
-        glDeleteVertexArrays(1, &(this->vertex_array_object_id));
+        glDeleteVertexArrays(1, this->vertex_array_object_id);
         glDeleteBuffers(2, this->vbo_ids);
     };
-    void display();
+    void display(bool active_filter);
 
-    bool init_screen(GLuint program_id);
+    bool init_screen(GLuint program_filter_id, GLuint program_normal_display_id);
     void init_texture(cv::Mat* frame, GLuint texture);
+    void init_weights_map(cv::Mat* frame, GLuint weights);
 
     protected:
     std::vector<GLfloat> vertex_buffer_data;
     std::vector<GLfloat> uv_buffer_data;
 
-    GLuint vertex_array_object_id = 0;
+    GLuint vertex_array_object_id[1];
     GLuint texture_id = 0;
 
     GLuint vbo_ids[2];
-    GLuint program_id;
+    GLuint program_filter_id;
+    GLuint program_normal_display_id;
 };
 
 #endif // !__SCREEN__

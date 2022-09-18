@@ -27,6 +27,9 @@ program::~program() {
   TEST_OPENGL_ERROR();
 }
 
+/**
+* Create a program with vertex and fragment shaders
+*/
 program *program::make_program(std::string &vertex_shader_src,
                                std::string &fragment_shader_src) {
   program *res = new program();

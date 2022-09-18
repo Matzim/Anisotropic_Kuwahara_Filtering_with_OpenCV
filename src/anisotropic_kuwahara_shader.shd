@@ -1,15 +1,27 @@
 #version 450
 
 uniform sampler2D texture_sampler;
+uniform sampler2D weights;
 
 layout(location=0) out vec4 output_color;
 
 in vec2 texCoordOut;
 
-void main() {
-    vec2 uv = texCoordOut;
-    vec2 d = 1.0 / textureSize(texture_sampler, 0);
+const float PI = 3.14159265358979323846;
 
+void main() {
+    vec2 src_size = textureSize(texture_sampler, 0);
+    vec2 uv = texCoordOut;
+    vec2 d = 1.0 / src_size;
+
+    vec4 m[8];
+    vec3 s[8];
+    for (int k = 0; k < 8; ++k) {
+        m[k] = vec4(0.0);
+        s[k] = vec3(0.0);
+    }
+
+    // Structure tensor calculation
     vec3 u = (
         -0.0125811 * texture(texture_sampler, uv + vec2(-3*d.x, -3*d.y)).xyz +
         -0.0125811 * texture(texture_sampler, uv + vec2(-3*d.x, 3*d.y)).xyz +
@@ -101,21 +113,60 @@ void main() {
     );
 
     vec3 egf = vec3(dot(u, u), dot(v, v), dot(u, v));
-    // output_color = vec4(dot(u, u), dot(v, v), dot(u, v), 1);
     
     float eg = egf.x + egf.y;
     float sqrt_eigen = sqrt(egf.x * egf.x - 2.0 * egf.x * egf.y + egf.y * egf.y + 4.0 * egf.z * egf.z);
     float lambda1 = 0.5 * (eg + sqrt_eigen);
     float lambda2 = 0.5 * (eg - sqrt_eigen);
     
-    vec2 oriented = vec2(lambda1 - egf.x, -egf.z);
+    vec2 eigen = vec2(lambda1 - egf.x, -egf.z);
     vec2 t = vec2(0.0, 1.0);
 
-    if (length(oriented) > 0.0) {
-        t = normalize(oriented);
+    if (length(eigen) > 0.0) {
+        t = normalize(eigen);
     }
     
+    float piN = PI / 4.0;
+    mat2 X = mat2(cos(piN), sin(piN), -sin(piN), cos(piN));
+
     float phi = atan(t.y, t.x);
-    float A = (lambda1 + lambda2 > 0.0) ? (lambda1 - lambda2) / (lambda1 + lambda2) : 1.0;
-    output_color = vec4(t, phi, A);
+    float A = (lambda1 + lambda2 > 0.0) ? (lambda1 - lambda2) / (lambda1 + lambda2) : 0.0;
+
+    A = A + 1.0;
+
+    float a = 2 * clamp(A, 0.1 , 2.0);
+    float b = 2 * clamp((1 / A), 0.1 , 2.0);
+    float cos_phi = cos(phi);
+    float sin_phi = sin(phi);
+    mat2 R = mat2(cos_phi , -sin_phi , sin_phi , cos_phi);
+    mat2 S = mat2(0.5/a, 0.0, 0.0, 0.5/b);
+    mat2 SR = S * R;
+
+    int max_x = int(sqrt(a * a * cos_phi * cos_phi + b * b * sin_phi * sin_phi));
+    int max_y = int(sqrt(a * a * sin_phi * sin_phi + b * b * cos_phi * cos_phi));
+
+    for (int j = -max_y ; j <= max_y ; ++j) {
+        for (int i = -max_x ; i <= max_x ; ++i) {
+            vec2 v = SR * vec2(i, j);
+            if (abs(v.x) <= 0.5 && abs(v.y) <= 0.5) {
+                vec3 c = texture(texture_sampler, uv + vec2(i, j) / src_size).rgb;
+                for (int k = 0; k < 8; ++k) {
+                    float w = texture(weights, vec2(0.5, 0.5) + v).x;
+                    m[k] += vec4(c * w, w);
+                    s[k] += c * c * w;
+                    v *= X;
+                }
+            }
+        }
+    }
+
+    vec4 o = vec4 (0.0);
+    for (int k = 0; k < 8; ++k) {
+        m[k].rgb /= m[k].w;
+        s[k] = abs(s[k] / m[k].w - (m[k].rgb * m[k].rgb));
+        float sigma2 = s[k].r + s[k].g + s[k].b;
+        float w = 1.0 / (1.0 + pow(255.0 * sigma2, 4));
+        o += vec4 (m[k].rgb * w, w);
+    }
+    output_color = vec4(o.rgb / o.w, 1.0);
 }
