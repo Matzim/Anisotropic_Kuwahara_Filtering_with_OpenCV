@@ -1,6 +1,8 @@
+/*-----------------------------------------------------------------*/
 /*! \file main.cpp
     \brief Main fonction of the program
 */
+/*-----------------------------------------------------------------*/
 #include <iostream>
 #include <fstream>
 #include <opencv2/core.hpp>
@@ -65,7 +67,7 @@ void display() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // Copy frame into new image
+  // Copy frame into new OpenCV matrix
   cv::Mat image = *frame;
 
   // Apply Anisotropic Kuwahara filter
@@ -79,6 +81,9 @@ void display() {
   glutPostRedisplay();
 }
 
+/**
+** Desactivate or active filter, when user press space bar
+*/
 void activate_filter(unsigned char key, int x, int y) {
   (void) x;
   (void) y;
@@ -90,6 +95,7 @@ void activate_filter(unsigned char key, int x, int y) {
     break;
   }
 }
+
 /**
 ** Keyboard callback for the current window to render another image
 */
@@ -129,12 +135,11 @@ void change_image(unsigned char key, int x, int y) {
 ** Display callback for the current window
 */
 void display_images() {
-  // During init, enable debug ou
+  // Clear OpenGL Window
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // Copy frame into new image
+  // Copy image into new OpenCV matrix
   cv::Mat image = *input_images[index_image];
 
   // Apply Anisotropic Kuwahara filter
@@ -148,6 +153,7 @@ void display_images() {
 }
 
 int main(int argc, char **argv) {
+  // Initialize OpenGL / GLUT context
   glutInit(&argc, argv);
   glutInitContextVersion(4, 5);
   glutInitContextProfile(GLUT_CORE_PROFILE);
@@ -244,8 +250,7 @@ int main(int argc, char **argv) {
       cv::Mat *ptr = new cv::Mat(input);
       input_images.push_back(ptr);
     }
-    frame = input_images[0];
-    screen->init_texture(frame, texture);
+    screen->init_texture(input_images[0], texture);
     glutMainLoop();
     for (cv::Mat *ptr : input_images) {
       delete ptr;

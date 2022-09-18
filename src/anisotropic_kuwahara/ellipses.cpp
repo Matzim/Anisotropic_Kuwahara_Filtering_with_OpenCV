@@ -1,6 +1,13 @@
+/*-----------------------------------------------------------------*/
+/*! \file ellipses.hh
+    \brief Functions used to create ellipses used in the anisotropic Kuwahara filter
+*/
+/*-----------------------------------------------------------------*/
 #include "ellipses.hh"
 
-// Get angle of coordinate x,y compare to coordinate 0,0
+/**
+** Get angle of coordinate x,y compare to coordinate 0,0
+*/
 double atan_interval(double x, double y) {
   if (x > 0) {
     if (y >= 0) {
@@ -20,7 +27,9 @@ double atan_interval(double x, double y) {
   return -1.0;
 }
 
-// Create ellipse with a certain number of circular subregions
+/**
+** Create ellipse with a certain number of circular subregions
+*/
 void create_circle(cv::Mat* matrix) {
   int radius = matrix->rows / 2;
 
@@ -44,7 +53,9 @@ void create_circle(cv::Mat* matrix) {
   }
 }
 
-// Only keep values where distance from matrix center is below or equal to h
+/**
+** Only keep values where distance from matrix center is below or equal to h
+*/
 void cut_circle(cv::Mat* matrix, int h) {
   int radius = matrix->rows / 2;
   for (int i = 0; i < NB_SUBREGIONS; i++) {
@@ -58,7 +69,9 @@ void cut_circle(cv::Mat* matrix, int h) {
   }
 }
 
-// Create all subregions (one for each direction) from matrix circle
+/**
+** Create all subregions (one for each direction) from matrix circle
+*/
 std::vector<cv::Mat*> get_subregions(cv::Mat& circle) {
   std::vector<cv::Mat*> masks = std::vector<cv::Mat*>();
   int middle = circle.cols / 2;

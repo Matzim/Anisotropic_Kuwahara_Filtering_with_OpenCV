@@ -1,10 +1,9 @@
 /*-----------------------------------------------------------------*/
 /*!
   \file program.cpp
-  \brief implements program class
+  \brief Implements program class
 */
 /*-----------------------------------------------------------------*/
-
 #include "program.hh"
 
 #include <iostream>

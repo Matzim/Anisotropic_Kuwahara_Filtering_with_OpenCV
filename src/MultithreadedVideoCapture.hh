@@ -1,7 +1,9 @@
+/*-----------------------------------------------------------------*/
 /*! \file MultithreadedVideoCapture.hh
     \brief Video capture that use a detached thread
     to collect frames and avoid blocking I/O operations
 */
+/*-----------------------------------------------------------------*/
 #ifndef __MULTITHREADED_VIDEO_CAPTURE__
 #define __MULTITHREADED_VIDEO_CAPTURE__
 

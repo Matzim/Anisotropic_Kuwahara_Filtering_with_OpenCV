@@ -1,9 +1,13 @@
+/*-----------------------------------------------------------------*/
 /*! \file local_structure_estimation.cpp
     \brief Implementation of the local structure estimation
 */
+/*-----------------------------------------------------------------*/
 #include "local_structure_estimation.hh"
 
-// Return x and y gaussian derivatives so it can be convolved with the image
+/**
+** Return x and y gaussian derivatives so it can be convolved with the image
+*/
 std::vector<cv::Mat *> gauss_derivative_kernel(const cv::Mat &kernel) {
   cv::Mat mgrid = cv::Mat(KERNEL_SOBEL_SIZE, KERNEL_SOBEL_SIZE, CV_64FC1);
   cv::Mat hgrid = cv::Mat(KERNEL_SOBEL_SIZE, KERNEL_SOBEL_SIZE, CV_64FC1);
@@ -23,6 +27,9 @@ std::vector<cv::Mat *> gauss_derivative_kernel(const cv::Mat &kernel) {
   return std::vector<cv::Mat *>({Dx, Dy});
 }
 
+/**
+** Calculate approximations of the partial derivative
+*/
 std::vector<cv::Mat *> gauss_derivatives(cv::Mat &img, const cv::Mat &kernel) {
   cv::Mat *partial_derivative_x = new cv::Mat();
   cv::Mat *partial_derivative_y = new cv::Mat();
@@ -38,6 +45,9 @@ std::vector<cv::Mat *> gauss_derivatives(cv::Mat &img, const cv::Mat &kernel) {
   return std::vector<cv::Mat *>({partial_derivative_x, partial_derivative_y});
 }
 
+/**
+** Calculate the structure tensor of the image
+*/
 std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray,
                                                 const cv::Mat &kernel) {
   // Calculate approximations of the partial derivative
@@ -64,6 +74,9 @@ std::vector<cv::Mat *> compute_structure_tensor(cv::Mat &gray,
   return std::vector<cv::Mat *>({E, F, G});
 }
 
+/**
+** Compute the eigen values of the image
+*/
 std::vector<cv::Mat *> compute_eigen_values(cv::Mat *E, cv::Mat *F,
                                             cv::Mat *G) {
   cv::Mat EG;

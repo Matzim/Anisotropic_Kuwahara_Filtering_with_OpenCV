@@ -9,6 +9,9 @@ in vec2 texCoordOut;
 
 const float PI = 3.14159265358979323846;
 
+/**
+** Anisotropic Kuwahara filter
+*/
 void main() {
     vec2 src_size = textureSize(texture_sampler, 0);
     vec2 uv = texCoordOut;

@@ -1,7 +1,8 @@
+/*-----------------------------------------------------------------*/
 /*! \file main.cpp
     \brief Main fonction of the program
 */
-
+/*-----------------------------------------------------------------*/
 #include <ctime>
 #include <iostream>
 #include <opencv2/core.hpp>

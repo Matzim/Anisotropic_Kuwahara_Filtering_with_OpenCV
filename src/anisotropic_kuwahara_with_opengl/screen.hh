@@ -1,10 +1,9 @@
 /*-----------------------------------------------------------------*/
 /*!
   \file screen.hh
-  \brief image is mapped to the 'screen'
+  \brief Image is mapped to the 'screen'
 */
 /*-----------------------------------------------------------------*/
-
 #ifndef __SCREEN__
 #define __SCREEN__
 

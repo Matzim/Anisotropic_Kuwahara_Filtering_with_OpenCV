@@ -1,9 +1,13 @@
+/*-----------------------------------------------------------------*/
 /*! \file anisotropic_kuwahara.cpp
     \brief Implementation of the anisotropic kuwahara filter
 */
+/*-----------------------------------------------------------------*/
 #include "anisotropic_kuwahara.hh"
 
-// Interpolation of coordinate x and y into the image
+/**
+** Interpolation of coordinate x and y into the image
+*/
 void _bilinear_interpolation_anisotropic(cv::Mat *channels, cv::Mat *pow2,
                                          double weight, int i, int j,
                                          double new_x, double new_y,
@@ -56,7 +60,9 @@ void _bilinear_interpolation_anisotropic(cv::Mat *channels, cv::Mat *pow2,
   sis[index2].at<double>(i, j) += weight * tmp_si2;
 }
 
-// Applies an anisotropic kuwahara filter on greyscale image,
+/**
+** Applies an anisotropic kuwahara filter on greyscale image,
+*/
 void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
                                     std::vector<cv::Mat *> masks,
                                     const cv::Mat &anisotropy,
@@ -167,13 +173,16 @@ void _kuwaharaAnisotropicFilterGrey(cv::Mat *channels,
   channels[2] /= sum_alpha2;
 }
 
-// Anisotropic Kuwahara Filter: Single-scale filtering
+/**
+** Anisotropic Kuwahara Filter: Single-scale filtering
+*/
 void kuwaharaAnisotropicFilter(cv::Mat &rgb_image, std::vector<cv::Mat *> masks,
                                const cv::Mat &kernel) {
   cv::Mat channels[3];
   cv::split(rgb_image, channels);
 
   cv::Mat gray;
+  // Convert image into grayscale
   cv::cvtColor(rgb_image, gray, cv::COLOR_BGR2GRAY);
 
   std::vector<cv::Mat *> structure_tensor =
@@ -188,7 +197,6 @@ void kuwaharaAnisotropicFilter(cv::Mat &rgb_image, std::vector<cv::Mat *> masks,
 
   cv::subtract(*(eigen_values[0]), *(structure_tensor[0]), eigen_vector1,
                cv::noArray(), CV_64FC1);
-
   cv::parallel_for_(
       cv::Range(0, gray.rows * gray.cols), [&](const cv::Range &range) {
         for (int i = range.start; i < range.end; i++) {

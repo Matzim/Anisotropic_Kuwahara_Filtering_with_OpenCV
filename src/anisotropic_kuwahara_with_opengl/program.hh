@@ -1,10 +1,9 @@
 /*-----------------------------------------------------------------*/
 /*!
   \file program.hh
-  \brief defines matrix class and utlity functions
+  \brief Defines matrix class and utlity functions
 */
 /*-----------------------------------------------------------------*/
-
 #ifndef __PROGRAM__
 #define __PROGRAM__
 

@@ -1,7 +1,9 @@
+/*-----------------------------------------------------------------*/
 /*! \file MultithreadedVideoCapture.cpp
     \brief Implementation of the video capture that use a detached thread
     to collect frames and avoid blocking I/O operations
 */
+/*-----------------------------------------------------------------*/
 #include "MultithreadedVideoCapture.hh"
 
 void MultithreadedVideoCapture::start() {

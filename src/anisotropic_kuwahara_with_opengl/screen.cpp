@@ -1,12 +1,14 @@
 /*-----------------------------------------------------------------*/
 /*!
   \file screen.cpp
-  \brief implements screen class
+  \brief Implements screen class
 */
 /*-----------------------------------------------------------------*/
-
 #include "screen.hh"
 
+/**
+** Initialize two triangles
+*/
 bool Screen::init_screen(GLuint program_filter_id, GLuint program_normal_display_id) {
     this->program_filter_id = program_filter_id;
     this->program_normal_display_id = program_normal_display_id;
@@ -38,6 +40,9 @@ bool Screen::init_screen(GLuint program_filter_id, GLuint program_normal_display
     return true;
 }
 
+/**
+** Initialize image in the sampler2D 'texture_sampler'
+*/
 void Screen::init_texture(cv::Mat* frame, GLuint texture) {
     this->texture_id = texture;
 
@@ -52,6 +57,9 @@ void Screen::init_texture(cv::Mat* frame, GLuint texture) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);TEST_OPENGL_ERROR();
 }
 
+/**
+** Initialize the sampler2D 'weights' with precalculated kernel
+*/
 void Screen::init_weights_map(cv::Mat* frame, GLuint weights) {
     glBindTexture(GL_TEXTURE_2D, weights);TEST_OPENGL_ERROR();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 33, 33, 0, GL_RED, GL_FLOAT, frame->ptr());
@@ -63,6 +71,9 @@ void Screen::init_weights_map(cv::Mat* frame, GLuint weights) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);TEST_OPENGL_ERROR();
 }
 
+/**
+** Display function and select program
+*/
 void Screen::display(bool active_filter) {
     glActiveTexture(GL_TEXTURE0);TEST_OPENGL_ERROR();
     glBindTexture(GL_TEXTURE_2D, this->texture_id);
