@@ -14,7 +14,6 @@ const float PI = 3.14159265358979323846;
 */
 void main() {
     vec2 src_size = textureSize(texture_sampler, 0);
-    vec2 uv = texCoordOut;
     vec2 d = 1.0 / src_size;
 
     vec4 m[8];
@@ -26,97 +25,98 @@ void main() {
 
     // Structure tensor calculation
     vec3 u = (
-        -0.0125811 * texture(texture_sampler, uv + vec2(-3*d.x, -3*d.y)).xyz +
-        -0.0125811 * texture(texture_sampler, uv + vec2(-3*d.x, 3*d.y)).xyz +
-        0.0125811 * texture(texture_sampler, uv + vec2(3*d.x, 3*d.y)).xyz +
-        0.0125811 * texture(texture_sampler, uv + vec2(3*d.x, -3*d.y)).xyz +
-        -0.0235046 * texture(texture_sampler, uv + vec2(-3*d.x, -2*d.y)).xyz +
-        -0.0235046 * texture(texture_sampler, uv + vec2(-3*d.x, 2*d.y)).xyz +
-        0.0235046 * texture(texture_sampler, uv + vec2(3*d.x, 2*d.y)).xyz +
-        0.0235046 * texture(texture_sampler, uv + vec2(3*d.x, -2*d.y)).xyz +
-        -0.034199 * texture(texture_sampler, uv + vec2(-3*d.x, -d.y)).xyz +
-        -0.034199 * texture(texture_sampler, uv + vec2(-3*d.x, d.y)).xyz +
-        0.034199 * texture(texture_sampler, uv + vec2(3*d.x, -d.y)).xyz +
-        0.034199 * texture(texture_sampler, uv + vec2(3*d.x, d.y)).xyz +
-        -0.0387525 * texture(texture_sampler, uv + vec2(-3*d.x, 0)).xyz +
-        0.0387525 * texture(texture_sampler, uv + vec2(3*d.x, 0)).xyz +
-        -0.0156697 * texture(texture_sampler, uv + vec2(-2*d.x, -3*d.y)).xyz +
-        -0.0156697 * texture(texture_sampler, uv + vec2(-2*d.x, 3*d.y)).xyz +
-        0.0156697 * texture(texture_sampler, uv + vec2(2*d.x, -3*d.y)).xyz +
-        0.0156697 * texture(texture_sampler, uv + vec2(2*d.x, 3*d.y)).xyz +
-        -0.0292749 * texture(texture_sampler, uv + vec2(-2*d.x, 2*d.y)).xyz +
-        -0.0292749 * texture(texture_sampler, uv + vec2(-2*d.x, -2*d.y)).xyz +
-        0.0292749 * texture(texture_sampler, uv + vec2(2*d.x, 2*d.y)).xyz +
-        0.0292749 * texture(texture_sampler, uv + vec2(2*d.x, -2*d.y)).xyz +
-        -0.0425948 * texture(texture_sampler, uv + vec2(-2*d.x, -d.y)).xyz +
-        -0.0425948 * texture(texture_sampler, uv + vec2(-2*d.x, d.y)).xyz +
-        0.0425948 * texture(texture_sampler, uv + vec2(2*d.x, -d.y)).xyz +
-        0.0425948 * texture(texture_sampler, uv + vec2(2*d.x, d.y)).xyz +
-        -0.0482662 * texture(texture_sampler, uv + vec2(-2*d.x, 0)).xyz +
-        0.0482662 * texture(texture_sampler, uv + vec2(2*d.x, 0)).xyz +
-        -0.0113997 * texture(texture_sampler, uv + vec2(-d.x, -3*d.y)).xyz +
-        -0.0113997 * texture(texture_sampler, uv + vec2(-d.x, 3*d.y)).xyz +
-        0.0113997 * texture(texture_sampler, uv + vec2(d.x, -3*d.y)).xyz +
-        0.0113997 * texture(texture_sampler, uv + vec2(d.x, 3*d.y)).xyz +
-        -0.0212974 * texture(texture_sampler, uv + vec2(-d.x, -2*d.y)).xyz +
-        -0.0212974 * texture(texture_sampler, uv + vec2(-d.x, 2*d.y)).xyz +
-        0.0212974 * texture(texture_sampler, uv + vec2(d.x, -2*d.y)).xyz +
-        0.0212974 * texture(texture_sampler, uv + vec2(d.x, 2*d.y)).xyz +
-        -0.0309875 * texture(texture_sampler, uv + vec2(-d.x, -d.y)).xyz +
-        -0.0309875 * texture(texture_sampler, uv + vec2(-d.x, d.y)).xyz +
-        0.0309875 * texture(texture_sampler, uv + vec2(d.x, -d.y)).xyz +
-        0.0309875 * texture(texture_sampler, uv + vec2(d.x, d.y)).xyz +
-        -0.0351134 * texture(texture_sampler, uv + vec2(-d.x, 0)).xyz +
-        0.0351134 * texture(texture_sampler, uv + vec2(d.x, 0)).xyz
+        -0.0125811 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, -3*d.y)).xyz +
+        -0.0125811 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, 3*d.y)).xyz +
+        0.0125811 * texture(texture_sampler, texCoordOut + vec2(3*d.x, 3*d.y)).xyz +
+        0.0125811 * texture(texture_sampler, texCoordOut + vec2(3*d.x, -3*d.y)).xyz +
+        -0.0235046 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, -2*d.y)).xyz +
+        -0.0235046 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, 2*d.y)).xyz +
+        0.0235046 * texture(texture_sampler, texCoordOut + vec2(3*d.x, 2*d.y)).xyz +
+        0.0235046 * texture(texture_sampler, texCoordOut + vec2(3*d.x, -2*d.y)).xyz +
+        -0.034199 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, -d.y)).xyz +
+        -0.034199 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, d.y)).xyz +
+        0.034199 * texture(texture_sampler, texCoordOut + vec2(3*d.x, -d.y)).xyz +
+        0.034199 * texture(texture_sampler, texCoordOut + vec2(3*d.x, d.y)).xyz +
+        -0.0387525 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, 0)).xyz +
+        0.0387525 * texture(texture_sampler, texCoordOut + vec2(3*d.x, 0)).xyz +
+        -0.0156697 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, -3*d.y)).xyz +
+        -0.0156697 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, 3*d.y)).xyz +
+        0.0156697 * texture(texture_sampler, texCoordOut + vec2(2*d.x, -3*d.y)).xyz +
+        0.0156697 * texture(texture_sampler, texCoordOut + vec2(2*d.x, 3*d.y)).xyz +
+        -0.0292749 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, 2*d.y)).xyz +
+        -0.0292749 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, -2*d.y)).xyz +
+        0.0292749 * texture(texture_sampler, texCoordOut + vec2(2*d.x, 2*d.y)).xyz +
+        0.0292749 * texture(texture_sampler, texCoordOut + vec2(2*d.x, -2*d.y)).xyz +
+        -0.0425948 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, -d.y)).xyz +
+        -0.0425948 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, d.y)).xyz +
+        0.0425948 * texture(texture_sampler, texCoordOut + vec2(2*d.x, -d.y)).xyz +
+        0.0425948 * texture(texture_sampler, texCoordOut + vec2(2*d.x, d.y)).xyz +
+        -0.0482662 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, 0)).xyz +
+        0.0482662 * texture(texture_sampler, texCoordOut + vec2(2*d.x, 0)).xyz +
+        -0.0113997 * texture(texture_sampler, texCoordOut + vec2(-d.x, -3*d.y)).xyz +
+        -0.0113997 * texture(texture_sampler, texCoordOut + vec2(-d.x, 3*d.y)).xyz +
+        0.0113997 * texture(texture_sampler, texCoordOut + vec2(d.x, -3*d.y)).xyz +
+        0.0113997 * texture(texture_sampler, texCoordOut + vec2(d.x, 3*d.y)).xyz +
+        -0.0212974 * texture(texture_sampler, texCoordOut + vec2(-d.x, -2*d.y)).xyz +
+        -0.0212974 * texture(texture_sampler, texCoordOut + vec2(-d.x, 2*d.y)).xyz +
+        0.0212974 * texture(texture_sampler, texCoordOut + vec2(d.x, -2*d.y)).xyz +
+        0.0212974 * texture(texture_sampler, texCoordOut + vec2(d.x, 2*d.y)).xyz +
+        -0.0309875 * texture(texture_sampler, texCoordOut + vec2(-d.x, -d.y)).xyz +
+        -0.0309875 * texture(texture_sampler, texCoordOut + vec2(-d.x, d.y)).xyz +
+        0.0309875 * texture(texture_sampler, texCoordOut + vec2(d.x, -d.y)).xyz +
+        0.0309875 * texture(texture_sampler, texCoordOut + vec2(d.x, d.y)).xyz +
+        -0.0351134 * texture(texture_sampler, texCoordOut + vec2(-d.x, 0)).xyz +
+        0.0351134 * texture(texture_sampler, texCoordOut + vec2(d.x, 0)).xyz
     );
 
     vec3 v = (
-        -0.0125811 * texture(texture_sampler, uv + vec2(-3*d.x, -3*d.y)).xyz +
-        -0.0125811 * texture(texture_sampler, uv + vec2(3*d.x, -3*d.y)).xyz +
-        0.0125811 * texture(texture_sampler, uv + vec2(-3*d.x, 3*d.y)).xyz +
-        0.0125811 * texture(texture_sampler, uv + vec2(3*d.x, 3*d.y)).xyz +
-        -0.0235046 * texture(texture_sampler, uv + vec2(2*d.x, -3*d.y)).xyz +
-        -0.0235046 * texture(texture_sampler, uv + vec2(-2*d.x, -3*d.y)).xyz +
-        0.0235046 * texture(texture_sampler, uv + vec2(-2*d.x, 3*d.y)).xyz +
-        0.0235046 * texture(texture_sampler, uv + vec2(-2*d.x, 3*d.y)).xyz +
-        -0.034199 * texture(texture_sampler, uv + vec2(d.x, -3*d.y)).xyz +
-        -0.034199 * texture(texture_sampler, uv + vec2(-d.x, -3*d.y)).xyz +
-        0.034199 * texture(texture_sampler, uv + vec2(-d.x, 3*d.y)).xyz +
-        0.034199 * texture(texture_sampler, uv + vec2(d.x, 3*d.y)).xyz +
-        -0.0387525 * texture(texture_sampler, uv + vec2(0, -3*d.y)).xyz +
-        0.0387525 * texture(texture_sampler, uv + vec2(0, 3*d.y)).xyz +
-        -0.0156697 * texture(texture_sampler, uv + vec2(-3*d.x, -2*d.y)).xyz +
-        -0.0156697 * texture(texture_sampler, uv + vec2(3*d.x, -2*d.y)).xyz +
-        0.0156697 * texture(texture_sampler, uv + vec2(-3*d.x, 2*d.y)).xyz +
-        0.0156697 * texture(texture_sampler, uv + vec2(3*d.x, 2*d.y)).xyz +
-        -0.0292749 * texture(texture_sampler, uv + vec2(-2*d.x, -2*d.y)).xyz +
-        -0.0292749 * texture(texture_sampler, uv + vec2(2*d.x, -2*d.y)).xyz +
-        0.0292749 * texture(texture_sampler, uv + vec2(-2*d.x, 2*d.y)).xyz +
-        0.0292749 * texture(texture_sampler, uv + vec2(2*d.x, 2*d.y)).xyz +
-        -0.0425948 * texture(texture_sampler, uv + vec2(-d.x, -2*d.y)).xyz +
-        -0.0425948 * texture(texture_sampler, uv + vec2(d.x, -2*d.y)).xyz +
-        0.0425948 * texture(texture_sampler, uv + vec2(-d.x, 2*d.y)).xyz +
-        0.0425948 * texture(texture_sampler, uv + vec2(d.x, 2*d.y)).xyz +
-        -0.0482662 * texture(texture_sampler, uv + vec2(0, -d.y)).xyz +
-        0.0482662 * texture(texture_sampler, uv + vec2(0, d.y)).xyz +
-        -0.0113997 * texture(texture_sampler, uv + vec2(-3*d.x, -d.y)).xyz +
-        -0.0113997 * texture(texture_sampler, uv + vec2(3*d.x, -d.y)).xyz +
-        0.0113997 * texture(texture_sampler, uv + vec2(-3*d.x, d.y)).xyz +
-        0.0113997 * texture(texture_sampler, uv + vec2(3*d.x, d.y)).xyz +
-        -0.0212974 * texture(texture_sampler, uv + vec2(-2*d.x, -d.y)).xyz +
-        -0.0212974 * texture(texture_sampler, uv + vec2(2*d.x, -d.y)).xyz +
-        0.0212974 * texture(texture_sampler, uv + vec2(-2*d.x, d.y)).xyz +
-        0.0212974 * texture(texture_sampler, uv + vec2(2*d.x, d.y)).xyz +
-        -0.0309875 * texture(texture_sampler, uv + vec2(-d.x, -d.y)).xyz +
-        -0.0309875 * texture(texture_sampler, uv + vec2(d.x, -d.y)).xyz +
-        0.0309875 * texture(texture_sampler, uv + vec2(-d.x, d.y)).xyz +
-        0.0309875 * texture(texture_sampler, uv + vec2(d.x, d.y)).xyz +
-        -0.0351134 * texture(texture_sampler, uv + vec2(0, -d.y)).xyz +
-        0.0351134 * texture(texture_sampler, uv + vec2(0, d.y)).xyz
+        -0.0125811 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, -3*d.y)).xyz +
+        -0.0125811 * texture(texture_sampler, texCoordOut + vec2(3*d.x, -3*d.y)).xyz +
+        0.0125811 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, 3*d.y)).xyz +
+        0.0125811 * texture(texture_sampler, texCoordOut + vec2(3*d.x, 3*d.y)).xyz +
+        -0.0235046 * texture(texture_sampler, texCoordOut + vec2(2*d.x, -3*d.y)).xyz +
+        -0.0235046 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, -3*d.y)).xyz +
+        0.0235046 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, 3*d.y)).xyz +
+        0.0235046 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, 3*d.y)).xyz +
+        -0.034199 * texture(texture_sampler, texCoordOut + vec2(d.x, -3*d.y)).xyz +
+        -0.034199 * texture(texture_sampler, texCoordOut + vec2(-d.x, -3*d.y)).xyz +
+        0.034199 * texture(texture_sampler, texCoordOut + vec2(-d.x, 3*d.y)).xyz +
+        0.034199 * texture(texture_sampler, texCoordOut + vec2(d.x, 3*d.y)).xyz +
+        -0.0387525 * texture(texture_sampler, texCoordOut + vec2(0, -3*d.y)).xyz +
+        0.0387525 * texture(texture_sampler, texCoordOut + vec2(0, 3*d.y)).xyz +
+        -0.0156697 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, -2*d.y)).xyz +
+        -0.0156697 * texture(texture_sampler, texCoordOut + vec2(3*d.x, -2*d.y)).xyz +
+        0.0156697 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, 2*d.y)).xyz +
+        0.0156697 * texture(texture_sampler, texCoordOut + vec2(3*d.x, 2*d.y)).xyz +
+        -0.0292749 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, -2*d.y)).xyz +
+        -0.0292749 * texture(texture_sampler, texCoordOut + vec2(2*d.x, -2*d.y)).xyz +
+        0.0292749 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, 2*d.y)).xyz +
+        0.0292749 * texture(texture_sampler, texCoordOut + vec2(2*d.x, 2*d.y)).xyz +
+        -0.0425948 * texture(texture_sampler, texCoordOut + vec2(-d.x, -2*d.y)).xyz +
+        -0.0425948 * texture(texture_sampler, texCoordOut + vec2(d.x, -2*d.y)).xyz +
+        0.0425948 * texture(texture_sampler, texCoordOut + vec2(-d.x, 2*d.y)).xyz +
+        0.0425948 * texture(texture_sampler, texCoordOut + vec2(d.x, 2*d.y)).xyz +
+        -0.0482662 * texture(texture_sampler, texCoordOut + vec2(0, -d.y)).xyz +
+        0.0482662 * texture(texture_sampler, texCoordOut + vec2(0, d.y)).xyz +
+        -0.0113997 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, -d.y)).xyz +
+        -0.0113997 * texture(texture_sampler, texCoordOut + vec2(3*d.x, -d.y)).xyz +
+        0.0113997 * texture(texture_sampler, texCoordOut + vec2(-3*d.x, d.y)).xyz +
+        0.0113997 * texture(texture_sampler, texCoordOut + vec2(3*d.x, d.y)).xyz +
+        -0.0212974 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, -d.y)).xyz +
+        -0.0212974 * texture(texture_sampler, texCoordOut + vec2(2*d.x, -d.y)).xyz +
+        0.0212974 * texture(texture_sampler, texCoordOut + vec2(-2*d.x, d.y)).xyz +
+        0.0212974 * texture(texture_sampler, texCoordOut + vec2(2*d.x, d.y)).xyz +
+        -0.0309875 * texture(texture_sampler, texCoordOut + vec2(-d.x, -d.y)).xyz +
+        -0.0309875 * texture(texture_sampler, texCoordOut + vec2(d.x, -d.y)).xyz +
+        0.0309875 * texture(texture_sampler, texCoordOut + vec2(-d.x, d.y)).xyz +
+        0.0309875 * texture(texture_sampler, texCoordOut + vec2(d.x, d.y)).xyz +
+        -0.0351134 * texture(texture_sampler, texCoordOut + vec2(0, -d.y)).xyz +
+        0.0351134 * texture(texture_sampler, texCoordOut + vec2(0, d.y)).xyz
     );
 
     vec3 egf = vec3(dot(u, u), dot(v, v), dot(u, v));
     
+    // Local orientation and anisotropy
     float eg = egf.x + egf.y;
     float sqrt_eigen = sqrt(egf.x * egf.x - 2.0 * egf.x * egf.y + egf.y * egf.y + 4.0 * egf.z * egf.z);
     float lambda1 = 0.5 * (eg + sqrt_eigen);
@@ -131,20 +131,15 @@ void main() {
     
     float piN = PI / 4.0;
     mat2 X = mat2(cos(piN), sin(piN), -sin(piN), cos(piN));
-
     float phi = atan(t.y, t.x);
     float A = (lambda1 + lambda2 > 0.0) ? (lambda1 - lambda2) / (lambda1 + lambda2) : 0.0;
-
     A = A + 1.0;
 
     float a = 2 * clamp(A, 0.1 , 2.0);
-    float b = 2 * clamp((1 / A), 0.1 , 2.0);
+    float b = 2 * clamp(1 / A, 0.1 , 2.0);
     float cos_phi = cos(phi);
     float sin_phi = sin(phi);
-    mat2 R = mat2(cos_phi , -sin_phi , sin_phi , cos_phi);
-    mat2 S = mat2(0.5/a, 0.0, 0.0, 0.5/b);
-    mat2 SR = S * R;
-
+    mat2 SR = mat2(0.5/a, 0.0, 0.0, 0.5/b) * mat2(cos_phi , -sin_phi , sin_phi , cos_phi);
     int max_x = int(sqrt(a * a * cos_phi * cos_phi + b * b * sin_phi * sin_phi));
     int max_y = int(sqrt(a * a * sin_phi * sin_phi + b * b * cos_phi * cos_phi));
 
@@ -152,7 +147,7 @@ void main() {
         for (int i = -max_x ; i <= max_x ; ++i) {
             vec2 v = SR * vec2(i, j);
             if (abs(v.x) <= 0.5 && abs(v.y) <= 0.5) {
-                vec3 c = texture(texture_sampler, uv + vec2(i, j) / src_size).rgb;
+                vec3 c = texture(texture_sampler, texCoordOut + vec2(i, j) / src_size).rgb;
                 for (int k = 0; k < 8; ++k) {
                     float w = texture(weights, vec2(0.5, 0.5) + v).x;
                     m[k] += vec4(c * w, w);

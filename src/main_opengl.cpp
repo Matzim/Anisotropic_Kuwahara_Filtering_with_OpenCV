@@ -169,7 +169,7 @@ int main(int argc, char **argv) {
   }
 
   // Uncomment this part to get all OpenGL Callbacks
-  glEnable(GL_DEBUG_OUTPUT);
+  // glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(MessageCallback, 0);
 
   double data[1089] = {
@@ -251,6 +251,7 @@ int main(int argc, char **argv) {
       input_images.push_back(ptr);
     }
     screen->init_texture(input_images[0], texture);
+    glutReshapeWindow(input_images[0]->cols, input_images[0]->rows);
     glutMainLoop();
     for (cv::Mat *ptr : input_images) {
       delete ptr;
