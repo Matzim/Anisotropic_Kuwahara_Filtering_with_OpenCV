@@ -8,7 +8,7 @@
 ![Tree](resources/example_tree.png "Tree")
 
 Apply the Kuwahara anisotrope filter to a stream of camera or images provided as input to the program.
-This project uses the OpenCV library.
+This project uses the OpenCV library to process images and retrieve images from the webcam.
 There are two versions of the code. One version uses OpenGL to have real-time processing.
 CMake is the build system of the project.
 ## Build from source
@@ -18,7 +18,7 @@ make -j8
 ```
 
 ## Usage
-Run the shell
+Run the program
 ```bash
 # Version without OpenGL
 ./src/main [Optional: Path to images]
